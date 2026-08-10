@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------
+# LISTA BLANCA. Esta carpeta guarda facturas, liquidaciones y
+# estados de cuenta con RUC, DNI e importes reales, y el
+# repositorio es PUBLICO. Por eso se ignora todo por defecto y
+# solo se autoriza, una por una, la ruta que si debe publicarse.
+#
+# Para publicar algo nuevo, agregalo abajo con "!" delante.
+# ---------------------------------------------------------------
+
+# 1. Ignorar absolutamente todo
+/*
+
+# 2. Autorizar solo lo que es codigo o documentacion
+!/.gitignore
+!/README.md
+!/app/
+
+# 3. Dentro de app/, bloquear cualquier dato que se cuele
+app/*.json
+app/*.csv
+app/*.txt
+app/*.xlsx
+app/*.pdf
+
+# 4. Basura del sistema
+.DS_Store
+Thumbs.db
+desktop.ini

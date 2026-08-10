@@ -1,0 +1,1907 @@
+<title>Gestión de Cuentas — Liquidaciones, Ventas y Factoring</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05715E">
+
+<style>
+:root{
+  --ground:#EDF0F1;
+  --surface:#FFFFFF;
+  --surface-2:#F6F8F8;
+  --ink:#0D1B21;
+  --ink-2:#41565E;
+  --ink-3:#788B92;
+  --line:#D6DEDF;
+  --line-strong:#B9C6C8;
+  --accent:#05715E;
+  --accent-soft:#DDEDE8;
+  --warn:#B8721A;
+  --warn-soft:#F7EBD8;
+  --info:#2C4E6E;
+  --info-soft:#DFE8F0;
+  --danger:#A83A2A;
+  --danger-soft:#F7E2DE;
+  --shadow:0 1px 2px rgba(13,27,33,.07), 0 6px 20px rgba(13,27,33,.06);
+  --sheet-shadow:0 -8px 40px rgba(13,27,33,.22);
+
+  --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono:ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+  --r:12px;
+  --pad:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#0A1216;
+    --surface:#141F24;
+    --surface-2:#1B282E;
+    --ink:#E8EFF0;
+    --ink-2:#A8BCC1;
+    --ink-3:#74898F;
+    --line:#26353B;
+    --line-strong:#37494F;
+    --accent:#3FB79C;
+    --accent-soft:#12332D;
+    --warn:#DFA24E;
+    --warn-soft:#33280F;
+    --info:#7BA6CF;
+    --info-soft:#16283A;
+    --danger:#E27C68;
+    --danger-soft:#3A1C16;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+    --sheet-shadow:0 -8px 40px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1216; --surface:#141F24; --surface-2:#1B282E;
+  --ink:#E8EFF0; --ink-2:#A8BCC1; --ink-3:#74898F;
+  --line:#26353B; --line-strong:#37494F;
+  --accent:#3FB79C; --accent-soft:#12332D;
+  --warn:#DFA24E; --warn-soft:#33280F;
+  --info:#7BA6CF; --info-soft:#16283A;
+  --danger:#E27C68; --danger-soft:#3A1C16;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+  --sheet-shadow:0 -8px 40px rgba(0,0,0,.6);
+}
+:root[data-theme="light"]{
+  --ground:#EDF0F1; --surface:#FFFFFF; --surface-2:#F6F8F8;
+  --ink:#0D1B21; --ink-2:#41565E; --ink-3:#788B92;
+  --line:#D6DEDF; --line-strong:#B9C6C8;
+  --accent:#05715E; --accent-soft:#DDEDE8;
+  --warn:#B8721A; --warn-soft:#F7EBD8;
+  --info:#2C4E6E; --info-soft:#DFE8F0;
+  --danger:#A83A2A; --danger-soft:#F7E2DE;
+  --shadow:0 1px 2px rgba(13,27,33,.07), 0 6px 20px rgba(13,27,33,.06);
+  --sheet-shadow:0 -8px 40px rgba(13,27,33,.22);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.45;
+  -webkit-text-size-adjust:100%; -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(74px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:620px; margin:0 auto}
+
+/* ---------- top bar ---------- */
+#topbar{
+  position:sticky; top:0; z-index:40; background:var(--surface);
+  border-bottom:1px solid var(--line);
+  padding:calc(10px + env(safe-area-inset-top)) var(--pad) 10px;
+}
+#topbar .wrap{display:flex; align-items:center; gap:10px}
+#topbar h1{
+  margin:0; font-size:17px; font-weight:700; letter-spacing:-.01em; flex:1;
+  text-wrap:balance;
+}
+#topbar .sub{
+  display:block; font-size:11px; font-weight:600; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:1px;
+}
+.iconbtn{
+  appearance:none; border:1px solid var(--line); background:var(--surface-2);
+  color:var(--ink-2); width:38px; height:38px; border-radius:10px;
+  font-size:17px; cursor:pointer; display:grid; place-items:center; flex:none;
+}
+.iconbtn:active{background:var(--line)}
+
+/* ---------- tab bar ---------- */
+#tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:45;
+  background:var(--surface); border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+#tabbar .wrap{display:grid; grid-template-columns:repeat(5,1fr)}
+#tabbar button{
+  appearance:none; border:0; background:none; cursor:pointer;
+  padding:9px 2px 10px; display:flex; flex-direction:column; align-items:center; gap:3px;
+  color:var(--ink-3); font-family:var(--sans); font-size:10.5px; font-weight:600;
+  letter-spacing:.02em; border-top:2px solid transparent; margin-top:-1px;
+}
+#tabbar button .ic{font-size:19px; line-height:1}
+#tabbar button[aria-current="page"]{color:var(--accent); border-top-color:var(--accent)}
+
+/* ---------- layout ---------- */
+main{padding:var(--pad) var(--pad) 32px}
+.stack{display:flex; flex-direction:column; gap:12px}
+.stack-lg{display:flex; flex-direction:column; gap:22px}
+.rowsplit{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+
+h2.sect{
+  margin:0; font-size:11px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:14px; box-shadow:var(--shadow);
+}
+.rec{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  border-left:4px solid var(--line-strong); padding:12px 13px;
+  box-shadow:var(--shadow); width:100%; text-align:left;
+  font-family:var(--sans); font-size:15px; color:var(--ink);
+  cursor:pointer; display:block;
+}
+.rec:active{background:var(--surface-2)}
+.rec.ok{border-left-color:var(--accent)}
+.rec.pend{border-left-color:var(--warn)}
+.rec.fact{border-left-color:var(--info)}
+.rec-top{display:flex; align-items:center; gap:8px; margin-bottom:3px}
+.rec-id{font-family:var(--mono); font-size:13px; font-weight:700; letter-spacing:-.02em}
+.rec-date{font-family:var(--mono); font-size:12px; color:var(--ink-3); margin-left:auto}
+.rec-name{font-size:13.5px; color:var(--ink-2); line-height:1.3; margin-bottom:7px}
+.rec-figs{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+.fig{display:flex; flex-direction:column; gap:1px}
+.fig .lbl{font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.fig .val{font-family:var(--mono); font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.fig.big .val{font-size:17px; font-weight:700}
+
+/* ---------- chips ---------- */
+.chip{
+  display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; padding:3px 7px; border-radius:5px;
+  white-space:nowrap;
+}
+.chip.ok{background:var(--accent-soft); color:var(--accent)}
+.chip.pend{background:var(--warn-soft); color:var(--warn)}
+.chip.fact{background:var(--info-soft); color:var(--info)}
+.chip.neu{background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line)}
+.chip.dang{background:var(--danger-soft); color:var(--danger)}
+
+/* ---------- filters ---------- */
+.filters{display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch}
+.filters button{
+  appearance:none; cursor:pointer; flex:none; font-family:var(--sans);
+  font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+}
+.filters button[aria-pressed="true"]{background:var(--ink); color:var(--ground); border-color:var(--ink)}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.kpi{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:12px 13px; box-shadow:var(--shadow); text-align:left;
+  font-family:var(--sans); color:var(--ink); cursor:pointer; display:block; width:100%;
+}
+.kpi .lbl{font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:5px}
+.kpi .val{font-family:var(--mono); font-size:21px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.03em; display:block; line-height:1.1}
+.kpi .foot{font-size:11.5px; color:var(--ink-3); margin-top:4px; display:block}
+.kpi.acc .val{color:var(--accent)}
+.kpi.wrn .val{color:var(--warn)}
+.kpi.inf .val{color:var(--info)}
+
+/* ---------- buttons ---------- */
+.btn{
+  appearance:none; cursor:pointer; font-family:var(--sans); font-size:15px; font-weight:600;
+  padding:13px 16px; border-radius:10px; border:1px solid transparent; width:100%;
+  display:flex; align-items:center; justify-content:center; gap:7px; line-height:1.2;
+}
+.btn.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+:root[data-theme="dark"] .btn.primary, .btn.primary{color:#fff}
+@media (prefers-color-scheme: dark){.btn.primary{color:#07211C}}
+:root[data-theme="dark"] .btn.primary{color:#07211C}
+:root[data-theme="light"] .btn.primary{color:#fff}
+.btn.ghost{background:var(--surface); color:var(--ink); border-color:var(--line-strong)}
+.btn.danger{background:var(--surface); color:var(--danger); border-color:var(--danger)}
+.btn:active{opacity:.82}
+.btn:disabled{opacity:.4; cursor:not-allowed}
+.btn.sm{font-size:13.5px; padding:9px 12px; width:auto}
+.btnrow{display:flex; gap:9px}
+.btnrow .btn{width:auto; flex:1}
+
+/* ---------- forms ---------- */
+.field{display:flex; flex-direction:column; gap:5px}
+.field > label{font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3)}
+input, select, textarea{
+  font-family:var(--sans); font-size:16px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line-strong); border-radius:9px;
+  padding:11px 12px; width:100%; appearance:none;
+}
+input[inputmode="decimal"], input[type="number"]{font-family:var(--mono); font-variant-numeric:tabular-nums}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%); background-position:calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:34px}
+input:focus, select:focus, textarea:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+button:focus-visible, .rec:focus-visible, .kpi:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:11px}
+
+.calc{
+  background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+  padding:12px 13px; display:flex; flex-direction:column; gap:7px;
+}
+.calc .ln{display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:13.5px; color:var(--ink-2)}
+.calc .ln b{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:600; color:var(--ink); font-size:14px}
+.calc .ln.total{border-top:1px dashed var(--line-strong); padding-top:8px; margin-top:1px; font-weight:700; color:var(--ink); font-size:15px}
+.calc .ln.total b{font-size:19px; font-weight:700; color:var(--accent)}
+.calc .ln.neg b{color:var(--danger)}
+
+/* ---------- pick list (liquidaciones en venta / flete) ---------- */
+.pick{border:1px solid var(--line); border-radius:10px; overflow:hidden}
+.pick-item{border-bottom:1px solid var(--line); background:var(--surface)}
+.pick-item:last-child{border-bottom:0}
+.pick-head{display:flex; align-items:flex-start; gap:10px; padding:11px 12px; cursor:pointer; width:100%; text-align:left; background:none; border:0; font-family:var(--sans); color:var(--ink); font-size:15px}
+.pick-item.on .pick-head{background:var(--accent-soft)}
+.box{
+  width:21px; height:21px; border-radius:6px; border:2px solid var(--line-strong);
+  flex:none; margin-top:1px; display:grid; place-items:center;
+  font-size:13px; font-weight:800; color:transparent; line-height:1;
+}
+.pick-item.on .box{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+:root[data-theme="light"] .pick-item.on .box{color:#fff}
+.pick-main{flex:1; min-width:0}
+.pick-t{font-family:var(--mono); font-size:13px; font-weight:700; letter-spacing:-.02em}
+.pick-s{font-size:12.5px; color:var(--ink-2); line-height:1.3}
+.pick-q{font-family:var(--mono); font-size:12px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.pick-body{padding:0 12px 12px 43px; display:flex; flex-direction:column; gap:8px; background:var(--accent-soft)}
+.qchips{display:flex; gap:6px}
+.qchips button{
+  appearance:none; cursor:pointer; font-family:var(--mono); font-size:12px; font-weight:700;
+  padding:6px 10px; border-radius:7px; border:1px solid var(--line-strong);
+  background:var(--surface); color:var(--ink-2); flex:1;
+}
+.qchips button:active{background:var(--line)}
+
+/* ---------- sheet / modal ---------- */
+#scrim{
+  position:fixed; inset:0; background:rgba(13,27,33,.55); z-index:60;
+  opacity:0; pointer-events:none; transition:opacity .18s ease;
+}
+#scrim.on{opacity:1; pointer-events:auto}
+#sheet{
+  position:fixed; left:0; right:0; bottom:0; z-index:70;
+  background:var(--ground); border-radius:16px 16px 0 0; box-shadow:var(--sheet-shadow);
+  max-height:94dvh; display:flex; flex-direction:column;
+  transform:translateY(102%); transition:transform .22s cubic-bezier(.32,.72,0,1);
+}
+#sheet.on{transform:translateY(0)}
+.sheet-hd{
+  display:flex; align-items:center; gap:10px; padding:14px var(--pad) 12px;
+  border-bottom:1px solid var(--line); background:var(--surface);
+  border-radius:16px 16px 0 0; flex:none;
+}
+.sheet-hd h3{margin:0; font-size:16px; font-weight:700; flex:1; letter-spacing:-.01em; text-wrap:balance}
+.sheet-bd{padding:var(--pad); overflow-y:auto; -webkit-overflow-scrolling:touch; flex:1}
+.sheet-ft{
+  padding:12px var(--pad) calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line); background:var(--surface); flex:none;
+}
+@media(min-width:640px){
+  #sheet{max-width:620px; margin:0 auto; border-radius:16px; bottom:16px; left:16px; right:16px}
+  #sheet.on{transform:translateY(0)}
+  .sheet-hd{border-radius:16px 16px 0 0}
+}
+
+/* ---------- confirm flow ---------- */
+.confirm{text-align:center; padding:8px 0 4px}
+.confirm .mark{
+  width:56px; height:56px; border-radius:50%; margin:0 auto 14px;
+  display:grid; place-items:center; font-size:28px; line-height:1;
+  background:var(--accent-soft); color:var(--accent);
+}
+.confirm h4{margin:0 0 5px; font-size:19px; font-weight:700; letter-spacing:-.01em}
+.confirm p{margin:0; color:var(--ink-2); font-size:14.5px}
+.confirm .q{margin-top:20px; font-size:16px; font-weight:600; color:var(--ink)}
+.medios{display:grid; gap:9px; margin-top:16px}
+.medio{
+  appearance:none; cursor:pointer; font-family:var(--sans); font-size:15.5px; font-weight:600;
+  padding:15px 16px; border-radius:11px; border:1px solid var(--line-strong);
+  background:var(--surface); color:var(--ink); display:flex; align-items:center; gap:11px; text-align:left;
+}
+.medio:active{background:var(--accent-soft); border-color:var(--accent)}
+.medio .dot{width:10px; height:10px; border-radius:3px; flex:none}
+
+/* ---------- toast ---------- */
+#toast{
+  position:fixed; left:50%; bottom:calc(86px + env(safe-area-inset-bottom));
+  transform:translate(-50%,14px); z-index:90;
+  background:var(--ink); color:var(--ground); padding:12px 18px; border-radius:11px;
+  font-size:14px; font-weight:600; max-width:88vw; text-align:center; line-height:1.35;
+  opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);
+}
+#toast.on{opacity:1; transform:translate(-50%,0)}
+
+/* ---------- misc ---------- */
+.empty{text-align:center; padding:44px 20px; color:var(--ink-3)}
+.empty .ic{font-size:34px; display:block; margin-bottom:10px; opacity:.5}
+.empty p{margin:0 0 4px; font-size:14.5px}
+.note{font-size:12.5px; color:var(--ink-3); line-height:1.5}
+.hr{height:1px; background:var(--line); border:0; margin:0}
+.dl{display:flex; flex-direction:column; gap:9px}
+.dl .r{display:flex; justify-content:space-between; gap:14px; align-items:baseline; font-size:14px}
+.dl .r span{color:var(--ink-2); flex:none}
+.dl .r b{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:600; text-align:right}
+.linkbtn{appearance:none;background:none;border:0;color:var(--accent);font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}
+.bar{height:6px; border-radius:3px; background:var(--line); overflow:hidden; margin-top:6px}
+.bar i{display:block; height:100%; background:var(--accent); border-radius:3px}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; animation:none !important}
+}
+</style>
+
+<header id="topbar">
+  <div class="wrap">
+    <div style="flex:1;min-width:0">
+      <span class="sub" id="topsub">LIALPESCA E.I.R.L.</span>
+      <h1 id="toptitle">Inicio</h1>
+    </div>
+    <button class="iconbtn" id="btnReportes" title="Reportes y datos" aria-label="Reportes y datos">▤</button>
+  </div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<nav id="tabbar" aria-label="Secciones">
+  <div class="wrap">
+    <button data-tab="inicio"><span class="ic">◈</span>Inicio</button>
+    <button data-tab="compras"><span class="ic">⚓</span>Compras</button>
+    <button data-tab="ventas"><span class="ic">⇄</span>Ventas</button>
+    <button data-tab="factoring"><span class="ic">◐</span>Factoring</button>
+    <button data-tab="fletes"><span class="ic">▤</span>Fletes</button>
+  </div>
+</nav>
+
+<div id="scrim"></div>
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const KEY = "lialpesca_v1";
+const MEDIOS = [
+  {id:"BBVA",      nombre:"BBVA",       color:"#1464A5"},
+  {id:"IBK",       nombre:"Interbank",  color:"#00A44E"},
+  {id:"EFECTIVO",  nombre:"Efectivo",   color:"#B8721A"}
+];
+
+function seed(){
+  return {
+    // Los catálogos arrancan vacíos a propósito: los nombres y documentos de
+    // pescadores, clientes y transportistas son datos personales y este archivo
+    // vive en un repositorio público. Se agregan desde la app, en el celular,
+    // con la opción "+ Agregar …" que trae cada formulario.
+    pescadores:[], clientes:[], transportistas:[], factores:[],
+    liquidaciones:[], ventas:[], factorings:[], fletes:[],
+    seq:{liq:1, ven:1, fac:1, fle:1},
+    cfg:{serieLiq:"E001", serieVen:"E001", retencion:1.5, detraccion:1.5},
+    ui:{tab:"inicio", fCompras:"todas", fVentas:"todas"}
+  };
+}
+let S;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || seed(); }catch(e){ S = seed(); }
+if(!S.ui) S.ui = {tab:"inicio", fCompras:"todas", fVentas:"todas"};
+S.ui.tab = S.ui.tab || "inicio";
+
+function guardar(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast("No se pudo guardar. Libera espacio en el navegador."); } }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+const n2 = v => (Number(v)||0).toLocaleString("es-PE",{minimumFractionDigits:2, maximumFractionDigits:2});
+const nk = v => (Number(v)||0).toLocaleString("es-PE",{minimumFractionDigits:0, maximumFractionDigits:2});
+const S_ = v => "S/ " + n2(v);
+const hoy = () => new Date().toISOString().slice(0,10);
+function fecha(iso){ if(!iso) return "—"; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+const num = v => { const x = parseFloat(String(v).replace(",",".")); return isFinite(x) ? x : 0; };
+const round2 = v => Math.round((Number(v)||0)*100)/100;
+
+const cat = (tipo, id) => (S[tipo]||[]).find(x => x.id === id) || {nombre:"—", doc:""};
+const medioNombre = id => (MEDIOS.find(m=>m.id===id)||{nombre:id||"—"}).nombre;
+const medioColor  = id => (MEDIOS.find(m=>m.id===id)||{color:"#788B92"}).color;
+
+/* --- saldo de una liquidación: kg comprados menos kg ya vendidos --- */
+function kgVendidos(liqId){
+  return S.ventas.reduce((t,v) =>
+    t + v.items.filter(i=>i.liqId===liqId).reduce((s,i)=>s+i.kg,0), 0);
+}
+function saldoKg(liq){ return round2(liq.kg - kgVendidos(liq.id)); }
+function estadoStock(liq){
+  const s = saldoKg(liq);
+  if(s <= 0.009) return "vendida";
+  if(s < liq.kg - 0.009) return "parcial";
+  return "stock";
+}
+
+/* --- totales de una venta --- */
+const ventaKg    = v => round2(v.items.reduce((t,i)=>t+i.kg,0));
+const ventaCosto = v => round2(v.items.reduce((t,i)=>t+i.kg*i.costoUnit,0));
+const ventaMargen= v => round2(v.total - ventaCosto(v));
+
+/* --- pagos --- */
+const pagado = d => round2((d.pagos||[]).reduce((t,p)=>t+p.monto,0));
+function estadoPago(d, objetivo){
+  if(d.factoringId) return "factoring";
+  return pagado(d) >= objetivo - 0.009 ? "ok" : "pend";
+}
+
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
+const TITULOS = {inicio:"Inicio", compras:"Liquidaciones de compra", ventas:"Facturas de venta", factoring:"Factoring", fletes:"Fletes"};
+function ir(tab){ S.ui.tab = tab; guardar(); render(); window.scrollTo(0,0); }
+
+document.querySelectorAll("#tabbar button").forEach(b =>
+  b.addEventListener("click", () => ir(b.dataset.tab)));
+
+function render(){
+  const t = S.ui.tab;
+  document.getElementById("toptitle").textContent = TITULOS[t];
+  document.querySelectorAll("#tabbar button").forEach(b =>
+    b.setAttribute("aria-current", b.dataset.tab === t ? "page" : "false"));
+  const v = document.getElementById("view");
+  v.innerHTML = ({inicio:vInicio, compras:vCompras, ventas:vVentas, factoring:vFactoring, fletes:vFletes})[t]();
+  v.querySelectorAll("[data-act]").forEach(el =>
+    el.addEventListener("click", () => ACT[el.dataset.act](el.dataset.arg)));
+}
+
+/* ============================================================
+   HOJA MODAL + TOAST
+   ============================================================ */
+const $sheet = document.getElementById("sheet");
+const $scrim = document.getElementById("scrim");
+let sheetOpen = false;
+
+function abrirHoja({titulo, cuerpo, pie, cerrable=true}){
+  $sheet.innerHTML = `
+    <div class="sheet-hd">
+      <h3 id="sheetTitle">${esc(titulo)}</h3>
+      ${cerrable ? `<button class="iconbtn" data-close aria-label="Cerrar">✕</button>` : ""}
+    </div>
+    <div class="sheet-bd">${cuerpo}</div>
+    ${pie ? `<div class="sheet-ft">${pie}</div>` : ""}`;
+  $sheet.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", cerrarHoja));
+  $sheet.classList.add("on"); $scrim.classList.add("on");
+  document.body.style.overflow = "hidden";
+  sheetOpen = true;
+  $sheet.querySelector(".sheet-bd").scrollTop = 0;
+  return $sheet;
+}
+function cerrarHoja(){
+  $sheet.classList.remove("on"); $scrim.classList.remove("on");
+  document.body.style.overflow = "";
+  sheetOpen = false;
+  setTimeout(() => { if(!sheetOpen) $sheet.innerHTML = ""; }, 240);
+}
+$scrim.addEventListener("click", cerrarHoja);
+document.addEventListener("keydown", e => { if(e.key === "Escape" && sheetOpen) cerrarHoja(); });
+
+let toastT;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("on"), 2600);
+}
+
+/* ============================================================
+   VISTA · INICIO
+   ============================================================ */
+function vInicio(){
+  const liqPend = S.liquidaciones.filter(l => estadoPago(l, l.neto) === "pend");
+  const flePend = S.fletes.filter(f => estadoPago(f, f.monto) === "pend");
+  const venPend = S.ventas.filter(v => estadoPago(v, v.netoCobrar) === "pend");
+
+  const porPagar  = round2(liqPend.reduce((t,l)=>t+l.neto-pagado(l),0) + flePend.reduce((t,f)=>t+f.monto-pagado(f),0));
+  const porCobrar = round2(venPend.reduce((t,v)=>t+v.netoCobrar-pagado(v),0));
+
+  const stockLiq = S.liquidaciones.filter(l => saldoKg(l) > 0.009);
+  const stockKg  = round2(stockLiq.reduce((t,l)=>t+saldoKg(l),0));
+  const stockVal = round2(stockLiq.reduce((t,l)=>t+saldoKg(l)*l.valorUnit,0));
+
+  const totalVenta = round2(S.ventas.reduce((t,v)=>t+v.total,0));
+  const totalCosto = round2(S.ventas.reduce((t,v)=>t+ventaCosto(v),0));
+  const margen     = round2(totalVenta - totalCosto);
+  const fletes     = round2(S.fletes.reduce((t,f)=>t+f.monto,0));
+  const descFact   = round2(S.factorings.reduce((t,f)=>t+f.descuento,0));
+  const neto       = round2(margen - fletes - descFact);
+  const kgVend     = round2(S.ventas.reduce((t,v)=>t+ventaKg(v),0));
+
+  const vacio = !S.liquidaciones.length && !S.ventas.length;
+
+  return `<div class="stack-lg">
+
+    <div class="kpis">
+      <button class="kpi wrn" data-act="irPend" data-arg="compras">
+        <span class="lbl">Por pagar</span>
+        <span class="val">${S_(porPagar)}</span>
+        <span class="foot">${liqPend.length} liquidación${liqPend.length===1?"":"es"} · ${flePend.length} flete${flePend.length===1?"":"s"}</span>
+      </button>
+      <button class="kpi acc" data-act="irPend" data-arg="ventas">
+        <span class="lbl">Por cobrar</span>
+        <span class="val">${S_(porCobrar)}</span>
+        <span class="foot">${venPend.length} factura${venPend.length===1?"":"s"} pendiente${venPend.length===1?"":"s"}</span>
+      </button>
+    </div>
+
+    <div class="stack">
+      <h2 class="sect">Mercadería en stock</h2>
+      <div class="card">
+        <div class="rowsplit">
+          <div class="fig big"><span class="lbl">Kg sin vender</span><span class="val">${nk(stockKg)}</span></div>
+          <div class="fig big" style="text-align:right"><span class="lbl">Costo inmovilizado</span><span class="val">${S_(stockVal)}</span></div>
+        </div>
+        ${stockLiq.length ? `<div class="note" style="margin-top:9px">En ${stockLiq.length} liquidación${stockLiq.length===1?"":"es"} con saldo disponible para vender.</div>`
+                          : `<div class="note" style="margin-top:9px">Todo lo comprado ya fue vendido.</div>`}
+      </div>
+    </div>
+
+    <div class="stack">
+      <h2 class="sect">Resultado acumulado</h2>
+      <div class="card">
+        <div class="dl">
+          <div class="r"><span>Ventas · ${nk(kgVend)} kg</span><b>${S_(totalVenta)}</b></div>
+          <div class="r"><span>Costo de la mercadería vendida</span><b style="color:var(--danger)">−${n2(totalCosto)}</b></div>
+          <hr class="hr">
+          <div class="r"><span><b style="font-family:var(--sans)">Margen bruto</b></span><b style="color:var(--accent);font-size:16px">${S_(margen)}</b></div>
+          <div class="r"><span>Fletes</span><b style="color:var(--danger)">−${n2(fletes)}</b></div>
+          <div class="r"><span>Descuento de factoring</span><b style="color:var(--danger)">−${n2(descFact)}</b></div>
+          <hr class="hr">
+          <div class="r"><span><b style="font-family:var(--sans)">Margen neto</b></span><b style="color:${neto>=0?"var(--accent)":"var(--danger)"};font-size:18px">${S_(neto)}</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h2 class="sect">Registrar</h2>
+      <div class="btnrow">
+        <button class="btn primary" data-act="nuevaLiq">+ Liquidación</button>
+        <button class="btn ghost" data-act="nuevaVenta">+ Venta</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn ghost" data-act="nuevoFactoring">+ Factoring</button>
+        <button class="btn ghost" data-act="nuevoFlete">+ Flete</button>
+      </div>
+    </div>
+
+    ${vacio ? `<div class="card"><div class="note">
+      <b style="color:var(--ink)">Primer uso.</b> La primera vez que registres una compra escribe el nombre y DNI del pescador:
+      queda guardado en este celular y después solo lo eliges de la lista. Lo mismo con clientes y transportistas.
+      Todo vive en este teléfono — usa <b style="color:var(--ink)">Reportes y datos ▤</b> arriba a la derecha
+      para bajar un respaldo cada cierto tiempo.
+    </div></div>` : ""}
+  </div>`;
+}
+
+/* ============================================================
+   VISTA · COMPRAS (liquidaciones)
+   ============================================================ */
+function vCompras(){
+  const f = S.ui.fCompras;
+  let lista = S.liquidaciones.slice().sort((a,b) => (b.fecha+b.id).localeCompare(a.fecha+a.id));
+  if(f === "pendientes") lista = lista.filter(l => estadoPago(l, l.neto) === "pend");
+  if(f === "disponibles") lista = lista.filter(l => saldoKg(l) > 0.009);
+
+  const pend = S.liquidaciones.filter(l => estadoPago(l, l.neto) === "pend");
+  const deuda = round2(pend.reduce((t,l)=>t+l.neto-pagado(l),0));
+
+  return `<div class="stack-lg">
+    <button class="btn primary" data-act="nuevaLiq">+ Nueva liquidación de compra</button>
+
+    ${pend.length ? `<div class="card" style="border-left:4px solid var(--warn)">
+      <div class="rowsplit">
+        <div class="fig big"><span class="lbl">Pendiente de pago</span><span class="val" style="color:var(--warn)">${S_(deuda)}</span></div>
+        <span class="chip pend">${pend.length} sin pagar</span>
+      </div>
+    </div>` : ""}
+
+    <div class="filters">
+      ${[["todas","Todas"],["pendientes","Por pagar"],["disponibles","Con saldo"]].map(([k,t]) =>
+        `<button data-act="filtC" data-arg="${k}" aria-pressed="${f===k}">${t}</button>`).join("")}
+    </div>
+
+    <div class="stack">
+      ${lista.length ? lista.map(cardLiq).join("") : vacia("⚓","Sin liquidaciones aquí","Registra tu primera compra a un pescador.")}
+    </div>
+  </div>`;
+}
+
+function cardLiq(l){
+  const ep = estadoPago(l, l.neto);
+  const es = estadoStock(l);
+  const saldo = saldoKg(l);
+  const chipStock = {
+    stock:   `<span class="chip neu">En stock</span>`,
+    parcial: `<span class="chip fact">Parcial · ${nk(saldo)} kg</span>`,
+    vendida: `<span class="chip neu">Vendida</span>`
+  }[es];
+  return `<button class="rec ${ep}" data-act="verLiq" data-arg="${l.id}">
+    <div class="rec-top">
+      <span class="rec-id">${esc(l.numero)}</span>
+      <span class="chip ${ep}">${ep==="ok"?"Pagada":"Por pagar"}</span>
+      ${chipStock}
+      <span class="rec-date">${fecha(l.fecha)}</span>
+    </div>
+    <div class="rec-name">${esc(cat("pescadores", l.pescadorId).nombre)}</div>
+    <div class="rec-figs">
+      <div class="fig"><span class="lbl">Kilos</span><span class="val">${nk(l.kg)}</span></div>
+      <div class="fig"><span class="lbl">S/ x kg</span><span class="val">${n2(l.valorUnit)}</span></div>
+      <div class="fig big"><span class="lbl">Neto pagado</span><span class="val">${S_(l.neto)}</span></div>
+    </div>
+  </button>`;
+}
+
+/* ============================================================
+   VISTA · VENTAS
+   ============================================================ */
+function vVentas(){
+  const f = S.ui.fVentas;
+  let lista = S.ventas.slice().sort((a,b) => (b.fecha+b.id).localeCompare(a.fecha+a.id));
+  if(f === "pendientes") lista = lista.filter(v => estadoPago(v, v.netoCobrar) === "pend");
+  if(f === "factoring")  lista = lista.filter(v => v.factoringId);
+
+  const pend = S.ventas.filter(v => estadoPago(v, v.netoCobrar) === "pend");
+  const porCobrar = round2(pend.reduce((t,v)=>t+v.netoCobrar-pagado(v),0));
+  const disponibles = S.liquidaciones.filter(l => saldoKg(l) > 0.009).length;
+
+  return `<div class="stack-lg">
+    <button class="btn primary" data-act="nuevaVenta">+ Nueva factura de venta</button>
+
+    ${pend.length ? `<div class="card" style="border-left:4px solid var(--accent)">
+      <div class="rowsplit">
+        <div class="fig big"><span class="lbl">Por cobrar</span><span class="val" style="color:var(--accent)">${S_(porCobrar)}</span></div>
+        <span class="chip pend">${pend.length} sin cobrar</span>
+      </div>
+    </div>` : ""}
+
+    <div class="note">${disponibles} liquidación${disponibles===1?"":"es"} con saldo disponible para vender.</div>
+
+    <div class="filters">
+      ${[["todas","Todas"],["pendientes","Por cobrar"],["factoring","En factoring"]].map(([k,t]) =>
+        `<button data-act="filtV" data-arg="${k}" aria-pressed="${f===k}">${t}</button>`).join("")}
+    </div>
+
+    <div class="stack">
+      ${lista.length ? lista.map(cardVenta).join("") : vacia("⇄","Sin ventas aquí","Registra tu primera factura de venta.")}
+    </div>
+  </div>`;
+}
+
+function cardVenta(v){
+  const ep = estadoPago(v, v.netoCobrar);
+  const m = ventaMargen(v);
+  const chip = ep==="factoring" ? `<span class="chip fact">Factoring</span>`
+             : ep==="ok" ? `<span class="chip ok">Cobrada</span>`
+             : `<span class="chip pend">Por cobrar</span>`;
+  return `<button class="rec ${ep}" data-act="verVenta" data-arg="${v.id}">
+    <div class="rec-top">
+      <span class="rec-id">${esc(v.numero)}</span>
+      ${chip}
+      ${v.items.length>1 ? `<span class="chip neu">${v.items.length} liquid.</span>` : ""}
+      <span class="rec-date">${fecha(v.fecha)}</span>
+    </div>
+    <div class="rec-name">${esc(cat("clientes", v.clienteId).nombre)}</div>
+    <div class="rec-figs">
+      <div class="fig"><span class="lbl">Kilos</span><span class="val">${nk(ventaKg(v))}</span></div>
+      <div class="fig big"><span class="lbl">Importe</span><span class="val">${S_(v.total)}</span></div>
+      <div class="fig"><span class="lbl">Margen</span><span class="val" style="color:${m>=0?"var(--accent)":"var(--danger)"}">${S_(m)}</span></div>
+    </div>
+  </button>`;
+}
+
+/* ============================================================
+   VISTA · FACTORING
+   ============================================================ */
+function vFactoring(){
+  const lista = S.factorings.slice().sort((a,b)=>(b.fecha+b.id).localeCompare(a.fecha+a.id));
+  const bruto = round2(lista.reduce((t,f)=>t+f.bruto,0));
+  const desc  = round2(lista.reduce((t,f)=>t+f.descuento,0));
+  const neto  = round2(lista.reduce((t,f)=>t+f.neto,0));
+  const cand  = S.ventas.filter(v => !v.factoringId && estadoPago(v, v.netoCobrar) === "pend").length;
+
+  return `<div class="stack-lg">
+    <button class="btn primary" data-act="nuevoFactoring">+ Registrar operación de factoring</button>
+
+    ${lista.length ? `<div class="card">
+      <div class="dl">
+        <div class="r"><span>Facturas cedidas (bruto)</span><b>${S_(bruto)}</b></div>
+        <div class="r"><span>Descuento del factor</span><b style="color:var(--danger)">−${n2(desc)}</b></div>
+        <hr class="hr">
+        <div class="r"><span><b style="font-family:var(--sans)">Neto recibido</b></span><b style="color:var(--info);font-size:17px">${S_(neto)}</b></div>
+      </div>
+    </div>` : ""}
+
+    <div class="note">${cand} factura${cand===1?"":"s"} por cobrar disponible${cand===1?"":"s"} para ceder.</div>
+
+    <div class="stack">
+      ${lista.length ? lista.map(cardFact).join("") : vacia("◐","Sin operaciones de factoring","Cede facturas por cobrar y quedan saldadas automáticamente.")}
+    </div>
+  </div>`;
+}
+
+function cardFact(f){
+  return `<button class="rec fact" data-act="verFactoring" data-arg="${f.id}">
+    <div class="rec-top">
+      <span class="rec-id">${esc(f.numero)}</span>
+      <span class="chip fact">${f.ventaIds.length} factura${f.ventaIds.length===1?"":"s"}</span>
+      <span class="chip neu">${f.modo==="lote" ? f.tasa+"% al lote" : "% por factura"}</span>
+      <span class="rec-date">${fecha(f.fecha)}</span>
+    </div>
+    <div class="rec-name">${esc(cat("factores", f.factorId).nombre)}</div>
+    <div class="rec-figs">
+      <div class="fig"><span class="lbl">Bruto</span><span class="val">${n2(f.bruto)}</span></div>
+      <div class="fig"><span class="lbl">Descuento</span><span class="val" style="color:var(--danger)">−${n2(f.descuento)}</span></div>
+      <div class="fig big"><span class="lbl">Neto recibido</span><span class="val" style="color:var(--info)">${S_(f.neto)}</span></div>
+    </div>
+  </button>`;
+}
+
+/* ============================================================
+   VISTA · FLETES
+   ============================================================ */
+function vFletes(){
+  const lista = S.fletes.slice().sort((a,b)=>(b.fecha+b.id).localeCompare(a.fecha+a.id));
+  const pend = lista.filter(f => estadoPago(f, f.monto) === "pend");
+  const deuda = round2(pend.reduce((t,f)=>t+f.monto-pagado(f),0));
+  const total = round2(lista.reduce((t,f)=>t+f.monto,0));
+  const kgTot = round2(lista.reduce((t,f)=>t+f.kg,0));
+
+  return `<div class="stack-lg">
+    <button class="btn primary" data-act="nuevoFlete">+ Registrar flete</button>
+
+    ${lista.length ? `<div class="card">
+      <div class="rec-figs">
+        <div class="fig"><span class="lbl">Kg transportados</span><span class="val">${nk(kgTot)}</span></div>
+        <div class="fig big"><span class="lbl">Total en fletes</span><span class="val">${S_(total)}</span></div>
+        ${pend.length ? `<div class="fig"><span class="lbl">Por pagar</span><span class="val" style="color:var(--warn)">${S_(deuda)}</span></div>` : ""}
+      </div>
+      ${kgTot > 0 ? `<div class="note" style="margin-top:9px">Costo promedio ${S_(total/kgTot)} por kilo transportado.</div>` : ""}
+    </div>` : ""}
+
+    <div class="stack">
+      ${lista.length ? lista.map(cardFlete).join("") : vacia("▤","Sin fletes registrados","Controla cuánto pagas por mover la mercadería.")}
+    </div>
+  </div>`;
+}
+
+function cardFlete(f){
+  const ep = estadoPago(f, f.monto);
+  return `<button class="rec ${ep}" data-act="verFlete" data-arg="${f.id}">
+    <div class="rec-top">
+      <span class="rec-id">${esc(f.numero)}</span>
+      <span class="chip ${ep}">${ep==="ok"?"Pagado":"Por pagar"}</span>
+      ${f.liqIds.length ? `<span class="chip neu">${f.liqIds.length} liquid.</span>` : ""}
+      <span class="rec-date">${fecha(f.fecha)}</span>
+    </div>
+    <div class="rec-name">${esc(cat("transportistas", f.transportistaId).nombre)}</div>
+    <div class="rec-figs">
+      <div class="fig"><span class="lbl">Kg enviados</span><span class="val">${nk(f.kg)}</span></div>
+      <div class="fig big"><span class="lbl">Monto</span><span class="val">${S_(f.monto)}</span></div>
+      ${f.kg>0 ? `<div class="fig"><span class="lbl">S/ x kg</span><span class="val">${n2(f.monto/f.kg)}</span></div>` : ""}
+    </div>
+  </button>`;
+}
+
+const vacia = (ic,t,s) => `<div class="empty"><span class="ic">${ic}</span><p><b>${t}</b></p><p>${s}</p></div>`;
+
+/* ============================================================
+   FORMULARIO · LIQUIDACIÓN DE COMPRA
+   ============================================================ */
+function nuevaLiq(){
+  const numero = `${S.cfg.serieLiq}-${S.seq.liq}`;
+  abrirHoja({
+    titulo:"Nueva liquidación de compra",
+    cuerpo:`<div class="stack">
+      <div class="grid2">
+        <div class="field"><label for="lqNum">N° liquidación</label><input id="lqNum" value="${esc(numero)}"></div>
+        <div class="field"><label for="lqFec">Fecha</label><input id="lqFec" type="date" value="${hoy()}"></div>
+      </div>
+
+      <div class="field">
+        <label for="lqPes">Pescador</label>
+        <select id="lqPes">
+          ${S.pescadores.map(p => `<option value="${p.id}">${esc(p.nombre)} · ${esc(p.doc)}</option>`).join("")}
+          <option value="__new">+ Agregar pescador nuevo…</option>
+        </select>
+      </div>
+      <div id="lqNuevo" style="display:${S.pescadores.length?"none":"grid"}" class="grid2">
+        <div class="field"><label for="lqNom">Nombre completo</label><input id="lqNom" placeholder="Nombre y apellidos" autocapitalize="characters"></div>
+        <div class="field"><label for="lqDni">DNI</label><input id="lqDni" inputmode="numeric" placeholder="00000000"></div>
+      </div>
+
+      <hr class="hr">
+
+      <div class="grid2">
+        <div class="field"><label for="lqKg">Kilos comprados</label><input id="lqKg" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+        <div class="field"><label for="lqPu">Precio S/ por kg</label><input id="lqPu" inputmode="decimal" placeholder="0.00" autocomplete="off"></div>
+      </div>
+      <div class="field">
+        <label for="lqTot">Total de la compra S/</label>
+        <input id="lqTot" inputmode="decimal" placeholder="0.00" autocomplete="off">
+        <span class="note">Escribe el precio por kilo <b>o</b> el total: lo que falte se calcula solo.</span>
+      </div>
+
+      <div class="calc" id="lqCalc"></div>
+    </div>`,
+    pie:`<button class="btn primary" id="lqSave">Registrar liquidación</button>`
+  });
+
+  const $ = id => document.getElementById(id);
+  const pes = $("lqPes");
+  pes.addEventListener("change", () => {
+    $("lqNuevo").style.display = pes.value === "__new" ? "grid" : "none";
+  });
+
+  const recal = src => {
+    const kg = num($("lqKg").value), pu = num($("lqPu").value), tot = num($("lqTot").value);
+    let total = tot;
+    if(src !== "tot" && kg > 0 && pu > 0){ total = round2(kg*pu); $("lqTot").value = total ? total.toFixed(2) : ""; }
+    else if(src === "tot" && kg > 0 && tot > 0){ $("lqPu").value = (tot/kg).toFixed(6).replace(/0+$/,"").replace(/\.$/,""); }
+    const ret = round2(total * S.cfg.retencion/100);
+    $("lqCalc").innerHTML = `
+      <div class="ln"><span>Kilos × precio</span><b>${nk(kg)} × ${n2(num($("lqPu").value))}</b></div>
+      <div class="ln"><span>Total valor de compra</span><b>${S_(total)}</b></div>
+      <div class="ln neg"><span>Retención de IR ${S.cfg.retencion}%</span><b>− ${n2(ret)}</b></div>
+      <div class="ln total"><span>Neto a pagar al pescador</span><b>${S_(total-ret)}</b></div>`;
+  };
+  ["lqKg","lqPu"].forEach(id => $(id).addEventListener("input", () => recal("pu")));
+  $("lqTot").addEventListener("input", () => recal("tot"));
+  recal();
+
+  $("lqSave").addEventListener("click", () => {
+    const kg = num($("lqKg").value), total = num($("lqTot").value);
+    if(kg <= 0) return toast("Ingresa los kilos comprados.");
+    if(total <= 0) return toast("Ingresa el precio por kilo o el total.");
+
+    let pescadorId = pes.value;
+    if(pescadorId === "__new"){
+      const nom = $("lqNom").value.trim();
+      if(!nom) return toast("Escribe el nombre del pescador.");
+      pescadorId = uid();
+      S.pescadores.push({id:pescadorId, nombre:nom.toUpperCase(), doc:$("lqDni").value.trim()});
+    }
+    const ret = round2(total * S.cfg.retencion/100);
+    const l = {
+      id:uid(), numero:$("lqNum").value.trim() || `${S.cfg.serieLiq}-${S.seq.liq}`,
+      fecha:$("lqFec").value || hoy(), pescadorId,
+      kg:round2(kg), valorUnit:total/kg, total:round2(total),
+      retencion:ret, neto:round2(total-ret), pagos:[]
+    };
+    S.liquidaciones.push(l);
+    S.seq.liq++;
+    guardar(); render();
+    flujoPago({
+      titulo:`Liquidación ${l.numero} registrada con éxito`,
+      detalle:`${nk(l.kg)} kg · ${cat("pescadores",pescadorId).nombre}`,
+      pregunta:"¿La compra se acaba de pagar?",
+      siLbl:"Sí, ya la pagué", noLbl:"No, queda pendiente",
+      monto:l.neto,
+      onPagar:(medio,f) => { l.pagos.push({fecha:f, medio, monto:l.neto}); guardar(); render(); }
+    });
+  });
+}
+
+/* ============================================================
+   FLUJO DE CONFIRMACIÓN DE PAGO / COBRO
+   ============================================================ */
+function flujoPago({titulo, detalle, pregunta, siLbl, noLbl, monto, onPagar, verbo="pago"}){
+  abrirHoja({
+    cerrable:false, titulo:"Registro completado",
+    cuerpo:`<div class="confirm">
+      <div class="mark">✓</div>
+      <h4>${esc(titulo)}</h4>
+      <p>${esc(detalle)}</p>
+      <p class="q">${esc(pregunta)}</p>
+    </div>`,
+    pie:`<div class="btnrow">
+      <button class="btn ghost" id="cfNo">${esc(noLbl)}</button>
+      <button class="btn primary" id="cfSi">${esc(siLbl)}</button>
+    </div>`
+  });
+  document.getElementById("cfNo").addEventListener("click", () => {
+    cerrarHoja();
+    toast(verbo === "cobro" ? "Queda registrada como POR COBRAR." : "Queda registrada como POR PAGAR.");
+  });
+  document.getElementById("cfSi").addEventListener("click", () =>
+    pedirMedio({monto, verbo, onElegir:(medio,f) => { onPagar(medio,f); cerrarHoja(); toast(`${verbo==="cobro"?"Cobro":"Pago"} registrado con éxito · ${medioNombre(medio)}`); }}));
+}
+
+function pedirMedio({monto, verbo="pago", fechaDef, onElegir}){
+  const esCobro = verbo === "cobro";
+  abrirHoja({
+    titulo: esCobro ? "¿Por qué medio lo cobraste?" : "¿Por qué medio lo pagaste?",
+    cuerpo:`<div class="stack">
+      <div class="calc"><div class="ln total"><span>${esCobro?"Monto cobrado":"Monto pagado"}</span><b>${S_(monto)}</b></div></div>
+      <div class="field"><label for="pmFec">Fecha del ${esCobro?"cobro":"pago"}</label><input id="pmFec" type="date" value="${fechaDef||hoy()}"></div>
+      <div class="medios">
+        ${MEDIOS.map(m => `<button class="medio" data-medio="${m.id}">
+          <span class="dot" style="background:${m.color}"></span>${esc(m.nombre)}</button>`).join("")}
+      </div>
+    </div>`
+  });
+  $sheet.querySelectorAll("[data-medio]").forEach(b =>
+    b.addEventListener("click", () => onElegir(b.dataset.medio, document.getElementById("pmFec").value || hoy())));
+}
+
+/* ============================================================
+   FORMULARIO · VENTA
+   ============================================================ */
+let draft = {};
+
+function nuevaVenta(){
+  const disp = S.liquidaciones.filter(l => saldoKg(l) > 0.009)
+                              .sort((a,b) => (a.fecha+a.numero).localeCompare(b.fecha+b.numero));
+  if(!disp.length){
+    return abrirHoja({titulo:"No hay mercadería disponible",
+      cuerpo:`<div class="confirm"><div class="mark" style="background:var(--warn-soft);color:var(--warn)">!</div>
+        <h4>Todo lo comprado ya está vendido</h4>
+        <p>Registra una liquidación de compra antes de emitir una factura de venta.</p></div>`,
+      pie:`<button class="btn ghost" data-close>Entendido</button>`});
+  }
+  draft = {sel:{}};
+  const numero = `${S.cfg.serieVen}-${S.seq.ven}`;
+
+  abrirHoja({
+    titulo:"Nueva factura de venta",
+    cuerpo:`<div class="stack">
+      <div class="grid2">
+        <div class="field"><label for="vnNum">N° factura</label><input id="vnNum" value="${esc(numero)}"></div>
+        <div class="field"><label for="vnFec">Fecha</label><input id="vnFec" type="date" value="${hoy()}"></div>
+      </div>
+      <div class="field">
+        <label for="vnCli">Comprador</label>
+        <select id="vnCli">
+          ${S.clientes.map(c => `<option value="${c.id}">${esc(c.nombre)}</option>`).join("")}
+          <option value="__new">+ Agregar cliente nuevo…</option>
+        </select>
+      </div>
+      <div id="vnNuevo" style="display:${S.clientes.length?"none":"grid"}" class="grid2">
+        <div class="field"><label for="vnNom">Razón social</label><input id="vnNom" autocapitalize="characters"></div>
+        <div class="field"><label for="vnRuc">RUC</label><input id="vnRuc" inputmode="numeric"></div>
+      </div>
+
+      <hr class="hr">
+      <h2 class="sect">Liquidaciones que sustentan esta venta</h2>
+      <div class="note">Solo aparecen las que tienen saldo. Puedes tomar una parte de cada lote.</div>
+      <div class="pick" id="vnPick">${disp.map(pickLiq).join("")}</div>
+
+      <hr class="hr">
+      <div class="grid2">
+        <div class="field"><label for="vnPu">Precio venta S/ por kg</label><input id="vnPu" inputmode="decimal" placeholder="0.00" autocomplete="off"></div>
+        <div class="field"><label for="vnTot">Importe total S/</label><input id="vnTot" inputmode="decimal" placeholder="0.00" autocomplete="off"></div>
+      </div>
+
+      <label class="field" style="flex-direction:row;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="vnDet" checked style="width:20px;height:20px;flex:none;accent-color:var(--accent)">
+        <span style="font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:600">
+          Sujeta a detracción ${S.cfg.detraccion}%
+          <span style="display:block;font-weight:400;color:var(--ink-3);font-size:12.5px">Ese monto lo deposita el cliente en tu cuenta del Banco de la Nación, no te llega directo.</span>
+        </span>
+      </label>
+
+      <div class="calc" id="vnCalc"></div>
+    </div>`,
+    pie:`<button class="btn primary" id="vnSave">Registrar venta</button>`
+  });
+
+  const $ = id => document.getElementById(id);
+  $("vnCli").addEventListener("change", () => {
+    $("vnNuevo").style.display = $("vnCli").value === "__new" ? "grid" : "none";
+  });
+
+  function bindPick(){
+    $("vnPick").querySelectorAll("[data-pick]").forEach(b =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.pick;
+        const l = S.liquidaciones.find(x=>x.id===id);
+        if(draft.sel[id] != null) delete draft.sel[id]; else draft.sel[id] = saldoKg(l);
+        repintarPick();
+      }));
+    $("vnPick").querySelectorAll("[data-kg]").forEach(inp =>
+      inp.addEventListener("input", () => {
+        const id = inp.dataset.kg;
+        const max = saldoKg(S.liquidaciones.find(x=>x.id===id));
+        let v = num(inp.value);
+        if(v > max){ v = max; inp.value = max; toast(`El saldo de ese lote es ${nk(max)} kg.`); }
+        draft.sel[id] = v;
+        recal("pu");
+      }));
+    $("vnPick").querySelectorAll("[data-pct]").forEach(b =>
+      b.addEventListener("click", () => {
+        const [id,pct] = b.dataset.pct.split("|");
+        const max = saldoKg(S.liquidaciones.find(x=>x.id===id));
+        draft.sel[id] = round2(max * (+pct)/100);
+        repintarPick();
+      }));
+  }
+  function repintarPick(){
+    $("vnPick").innerHTML = disp.map(pickLiq).join("");
+    bindPick(); recal("pu");
+  }
+  bindPick();
+
+  function recal(src){
+    const kgTot = round2(Object.values(draft.sel).reduce((t,v)=>t+(Number(v)||0),0));
+    const pu = num($("vnPu").value), tot = num($("vnTot").value);
+    let total = tot;
+    if(src !== "tot"){ if(kgTot > 0 && pu > 0){ total = round2(kgTot*pu); $("vnTot").value = total.toFixed(2); } }
+    else if(kgTot > 0 && tot > 0){ $("vnPu").value = (tot/kgTot).toFixed(4).replace(/0+$/,"").replace(/\.$/,""); }
+
+    const costo = round2(Object.entries(draft.sel).reduce((t,[id,k]) => {
+      const l = S.liquidaciones.find(x=>x.id===id); return t + (Number(k)||0)*(l?l.valorUnit:0);
+    },0));
+    const det = $("vnDet").checked ? round2(total * S.cfg.detraccion/100) : 0;
+    const margen = round2(total - costo);
+    const pctM = costo > 0 ? (margen/costo*100) : 0;
+
+    $("vnCalc").innerHTML = `
+      <div class="ln"><span>Lotes seleccionados</span><b>${Object.keys(draft.sel).length}</b></div>
+      <div class="ln"><span>Kilos a vender</span><b>${nk(kgTot)} kg</b></div>
+      <div class="ln"><span>Importe de la factura</span><b>${S_(total)}</b></div>
+      ${det ? `<div class="ln neg"><span>Detracción ${S.cfg.detraccion}% (Banco de la Nación)</span><b>− ${n2(det)}</b></div>` : ""}
+      <div class="ln total"><span>Neto a cobrar del cliente</span><b>${S_(total-det)}</b></div>
+      <hr class="hr">
+      <div class="ln"><span>Costo de esos lotes</span><b>${S_(costo)}</b></div>
+      <div class="ln"><span><b style="font-family:var(--sans)">Margen bruto</b></span><b style="color:${margen>=0?"var(--accent)":"var(--danger)"};font-size:16px">${S_(margen)} · ${margen>=0?"+":""}${pctM.toFixed(1)}%</b></div>`;
+  }
+  $("vnPu").addEventListener("input", () => recal("pu"));
+  $("vnTot").addEventListener("input", () => recal("tot"));
+  $("vnDet").addEventListener("change", () => recal("keep"));
+  recal("pu");
+
+  $("vnSave").addEventListener("click", () => {
+    const items = Object.entries(draft.sel)
+      .map(([id,k]) => ({liqId:id, kg:round2(Number(k)||0)}))
+      .filter(i => i.kg > 0.009);
+    if(!items.length) return toast("Selecciona al menos una liquidación.");
+    for(const i of items){
+      const l = S.liquidaciones.find(x=>x.id===i.liqId);
+      if(i.kg > saldoKg(l) + 0.009) return toast(`${l.numero} solo tiene ${nk(saldoKg(l))} kg de saldo.`);
+      i.costoUnit = l.valorUnit;
+    }
+    const total = num(document.getElementById("vnTot").value);
+    if(total <= 0) return toast("Ingresa el precio de venta o el importe total.");
+
+    let clienteId = document.getElementById("vnCli").value;
+    if(clienteId === "__new"){
+      const nom = document.getElementById("vnNom").value.trim();
+      if(!nom) return toast("Escribe la razón social del comprador.");
+      clienteId = uid();
+      S.clientes.push({id:clienteId, nombre:nom.toUpperCase(), doc:document.getElementById("vnRuc").value.trim()});
+    }
+    const det = document.getElementById("vnDet").checked ? round2(total * S.cfg.detraccion/100) : 0;
+    const v = {
+      id:uid(), numero:document.getElementById("vnNum").value.trim() || `${S.cfg.serieVen}-${S.seq.ven}`,
+      fecha:document.getElementById("vnFec").value || hoy(), clienteId, items,
+      total:round2(total), detraccion:det, netoCobrar:round2(total-det),
+      pagos:[], factoringId:null
+    };
+    S.ventas.push(v);
+    S.seq.ven++;
+    guardar(); render();
+    flujoPago({
+      titulo:`Venta ${v.numero} registrada con éxito`,
+      detalle:`${nk(ventaKg(v))} kg · ${S_(v.total)} · margen ${S_(ventaMargen(v))}`,
+      pregunta:"¿Ya se cobró esta factura?",
+      siLbl:"Sí, ya la cobré", noLbl:"No, queda pendiente",
+      monto:v.netoCobrar, verbo:"cobro",
+      onPagar:(medio,f) => { v.pagos.push({fecha:f, medio, monto:v.netoCobrar}); guardar(); render(); }
+    });
+  });
+
+  function pickLiq(l){
+    const on = draft.sel[l.id] != null;
+    const max = saldoKg(l);
+    const parcial = max < l.kg - 0.009;
+    return `<div class="pick-item ${on?"on":""}">
+      <button class="pick-head" data-pick="${l.id}">
+        <span class="box">✓</span>
+        <span class="pick-main">
+          <span class="pick-t">${esc(l.numero)}</span>
+          <span class="pick-s">${esc(cat("pescadores", l.pescadorId).nombre)}</span>
+          <span class="pick-q">${nk(max)} kg disponibles${parcial?` de ${nk(l.kg)}`:""} · S/ ${n2(l.valorUnit)}/kg · ${fecha(l.fecha)}</span>
+        </span>
+      </button>
+      ${on ? `<div class="pick-body">
+        <div class="field"><label for="kg_${l.id}">Kilos a tomar de este lote</label>
+          <input id="kg_${l.id}" data-kg="${l.id}" inputmode="decimal" value="${draft.sel[l.id]}"></div>
+        <div class="qchips">
+          <button type="button" data-pct="${l.id}|25">25%</button>
+          <button type="button" data-pct="${l.id}|50">50%</button>
+          <button type="button" data-pct="${l.id}|75">75%</button>
+          <button type="button" data-pct="${l.id}|100">Todo</button>
+        </div>
+      </div>` : ""}
+    </div>`;
+  }
+}
+
+/* ============================================================
+   FORMULARIO · FACTORING
+   ============================================================ */
+function nuevoFactoring(){
+  const cand = S.ventas.filter(v => !v.factoringId && estadoPago(v, v.netoCobrar) === "pend")
+                       .sort((a,b)=>(a.fecha+a.numero).localeCompare(b.fecha+b.numero));
+  if(!cand.length){
+    return abrirHoja({titulo:"No hay facturas por ceder",
+      cuerpo:`<div class="confirm"><div class="mark" style="background:var(--info-soft);color:var(--info)">◐</div>
+        <h4>Todas tus facturas están cobradas</h4>
+        <p>Solo se pueden ceder facturas de venta que sigan pendientes de cobro.</p></div>`,
+      pie:`<button class="btn ghost" data-close>Entendido</button>`});
+  }
+  draft = {sel:{}, modo:"lote", tasa:S.cfg.detraccion};
+
+  abrirHoja({
+    titulo:"Operación de factoring",
+    cuerpo:`<div class="stack">
+      <div class="grid2">
+        <div class="field"><label for="fcNum">N° operación</label><input id="fcNum" value="FAC-${S.seq.fac}"></div>
+        <div class="field"><label for="fcFec">Fecha</label><input id="fcFec" type="date" value="${hoy()}"></div>
+      </div>
+      <div class="field">
+        <label for="fcEmp">Empresa de factoring</label>
+        <select id="fcEmp">
+          ${S.factores.map(f => `<option value="${f.id}">${esc(f.nombre)}</option>`).join("")}
+          <option value="__new">+ Agregar empresa nueva…</option>
+        </select>
+      </div>
+      <div id="fcNuevo" style="display:${S.factores.length?"none":"grid"}" class="grid2">
+        <div class="field"><label for="fcNom">Razón social</label><input id="fcNom" autocapitalize="characters"></div>
+        <div class="field"><label for="fcRuc">RUC</label><input id="fcRuc" inputmode="numeric"></div>
+      </div>
+
+      <hr class="hr">
+      <h2 class="sect">Facturas que voy a ceder</h2>
+      <div class="pick" id="fcPick">${cand.map(pickVenta).join("")}</div>
+
+      <hr class="hr">
+      <h2 class="sect">Descuento del factor</h2>
+      <div class="filters">
+        <button data-modo="lote" aria-pressed="true">Un % a todo el lote</button>
+        <button data-modo="factura" aria-pressed="false">Un % por cada factura</button>
+      </div>
+      <div class="field" id="fcTasaWrap">
+        <label for="fcTasa">Porcentaje de descuento</label>
+        <input id="fcTasa" inputmode="decimal" value="1.5">
+      </div>
+      <div id="fcPorFactura" style="display:none" class="stack"></div>
+
+      <div class="calc" id="fcCalc"></div>
+      <div class="note">Al registrar, estas facturas quedan <b style="color:var(--ink)">cobradas por factoring</b> y salen de tus cuentas por cobrar.</div>
+    </div>`,
+    pie:`<button class="btn primary" id="fcSave">Registrar factoring</button>`
+  });
+
+  const $ = id => document.getElementById(id);
+  $("fcEmp").addEventListener("change", () => {
+    $("fcNuevo").style.display = $("fcEmp").value === "__new" ? "grid" : "none";
+  });
+
+  function bindPick(){
+    $("fcPick").querySelectorAll("[data-pick]").forEach(b =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.pick;
+        if(draft.sel[id]) delete draft.sel[id]; else draft.sel[id] = true;
+        repintar();
+      }));
+  }
+  function repintar(){
+    $("fcPick").innerHTML = cand.map(pickVenta).join("");
+    bindPick(); pintarTasas(); recal();
+  }
+  bindPick();
+
+  $sheet.querySelectorAll("[data-modo]").forEach(b =>
+    b.addEventListener("click", () => {
+      draft.modo = b.dataset.modo;
+      $sheet.querySelectorAll("[data-modo]").forEach(x => x.setAttribute("aria-pressed", x.dataset.modo === draft.modo));
+      $("fcTasaWrap").style.display   = draft.modo === "lote" ? "flex" : "none";
+      $("fcPorFactura").style.display = draft.modo === "lote" ? "none" : "flex";
+      pintarTasas(); recal();
+    }));
+
+  function pintarTasas(){
+    if(draft.modo !== "factura"){ $("fcPorFactura").innerHTML = ""; return; }
+    const ids = Object.keys(draft.sel);
+    $("fcPorFactura").innerHTML = ids.length
+      ? ids.map(id => {
+          const v = S.ventas.find(x=>x.id===id);
+          return `<div class="field"><label for="t_${id}">${esc(v.numero)} · ${S_(v.netoCobrar)}</label>
+            <input id="t_${id}" data-tasa="${id}" inputmode="decimal" value="${draft["t_"+id] ?? 1.5}"></div>`;
+        }).join("")
+      : `<div class="note">Selecciona facturas arriba para asignarles su porcentaje.</div>`;
+    $("fcPorFactura").querySelectorAll("[data-tasa]").forEach(inp =>
+      inp.addEventListener("input", () => { draft["t_"+inp.dataset.tasa] = inp.value; recal(); }));
+  }
+
+  function calcular(){
+    const ids = Object.keys(draft.sel);
+    const tasaLote = num($("fcTasa").value);
+    let bruto = 0, desc = 0;
+    const det = ids.map(id => {
+      const v = S.ventas.find(x=>x.id===id);
+      const tasa = draft.modo === "lote" ? tasaLote : num(draft["t_"+id] ?? 1.5);
+      const d = round2(v.netoCobrar * tasa/100);
+      bruto += v.netoCobrar; desc += d;
+      return {ventaId:id, numero:v.numero, bruto:v.netoCobrar, tasa, descuento:d, neto:round2(v.netoCobrar-d)};
+    });
+    return {det, bruto:round2(bruto), descuento:round2(desc), neto:round2(bruto-desc)};
+  }
+
+  function recal(){
+    const r = calcular();
+    $("fcCalc").innerHTML = `
+      <div class="ln"><span>Facturas cedidas</span><b>${r.det.length}</b></div>
+      <div class="ln"><span>Valor bruto de las facturas</span><b>${S_(r.bruto)}</b></div>
+      <div class="ln neg"><span>Descuento del factor</span><b>− ${n2(r.descuento)}</b></div>
+      <div class="ln total"><span>Neto a recibir</span><b>${S_(r.neto)}</b></div>`;
+  }
+  $("fcTasa").addEventListener("input", recal);
+  recal();
+
+  $("fcSave").addEventListener("click", () => {
+    const r = calcular();
+    if(!r.det.length) return toast("Selecciona al menos una factura.");
+
+    let factorId = $("fcEmp").value;
+    if(factorId === "__new"){
+      const nom = $("fcNom").value.trim();
+      if(!nom) return toast("Escribe la razón social de la empresa de factoring.");
+      factorId = uid();
+      S.factores.push({id:factorId, nombre:nom.toUpperCase(), doc:$("fcRuc").value.trim()});
+    }
+    const f = {
+      id:uid(), numero:$("fcNum").value.trim() || `FAC-${S.seq.fac}`,
+      fecha:$("fcFec").value || hoy(), factorId,
+      modo:draft.modo, tasa:num($("fcTasa").value),
+      detalle:r.det, ventaIds:r.det.map(d=>d.ventaId),
+      bruto:r.bruto, descuento:r.descuento, neto:r.neto, pagos:[]
+    };
+    S.factorings.push(f);
+    S.seq.fac++;
+    r.det.forEach(d => {
+      const v = S.ventas.find(x => x.id === d.ventaId);
+      v.factoringId = f.id;
+      v.pagos.push({fecha:f.fecha, medio:"FACTORING", monto:v.netoCobrar, nota:f.numero});
+    });
+    guardar(); render();
+    flujoPago({
+      titulo:`Factoring ${f.numero} registrado con éxito`,
+      detalle:`${r.det.length} factura${r.det.length===1?"":"s"} cedida${r.det.length===1?"":"s"} · quedaron cobradas`,
+      pregunta:"¿Ya te depositaron el neto?",
+      siLbl:"Sí, ya lo recibí", noLbl:"Todavía no",
+      monto:f.neto, verbo:"cobro",
+      onPagar:(medio,fe) => { f.pagos.push({fecha:fe, medio, monto:f.neto}); guardar(); render(); }
+    });
+  });
+
+  function pickVenta(v){
+    const on = !!draft.sel[v.id];
+    return `<div class="pick-item ${on?"on":""}">
+      <button class="pick-head" data-pick="${v.id}">
+        <span class="box">✓</span>
+        <span class="pick-main">
+          <span class="pick-t">${esc(v.numero)}</span>
+          <span class="pick-s">${esc(cat("clientes", v.clienteId).nombre)}</span>
+          <span class="pick-q">${S_(v.netoCobrar)} por cobrar · ${fecha(v.fecha)}</span>
+        </span>
+      </button>
+    </div>`;
+  }
+}
+
+/* ============================================================
+   FORMULARIO · FLETE
+   ============================================================ */
+function nuevoFlete(){
+  draft = {sel:{}};
+  const liqs = S.liquidaciones.slice().sort((a,b)=>(b.fecha+b.numero).localeCompare(a.fecha+a.numero)).slice(0,60);
+
+  abrirHoja({
+    titulo:"Registrar flete",
+    cuerpo:`<div class="stack">
+      <div class="grid2">
+        <div class="field"><label for="flNum">N° / referencia</label><input id="flNum" value="FLE-${S.seq.fle}"></div>
+        <div class="field"><label for="flFec">Fecha</label><input id="flFec" type="date" value="${hoy()}"></div>
+      </div>
+      <div class="field">
+        <label for="flTra">Transportista</label>
+        <select id="flTra">
+          ${S.transportistas.map(t => `<option value="${t.id}">${esc(t.nombre)}</option>`).join("")}
+          <option value="__new">+ Agregar transportista nuevo…</option>
+        </select>
+      </div>
+      <div id="flNuevo" style="display:${S.transportistas.length?"none":"grid"}" class="grid2">
+        <div class="field"><label for="flNom">Razón social / nombre</label><input id="flNom" autocapitalize="characters"></div>
+        <div class="field"><label for="flRuc">RUC</label><input id="flRuc" inputmode="numeric"></div>
+      </div>
+
+      <hr class="hr">
+      <div class="grid2">
+        <div class="field"><label for="flKg">Cantidad enviada (kg)</label><input id="flKg" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+        <div class="field"><label for="flMon">Monto pagado S/</label><input id="flMon" inputmode="decimal" placeholder="0.00" autocomplete="off"></div>
+      </div>
+
+      <hr class="hr">
+      <h2 class="sect">Liquidaciones que van en este flete</h2>
+      <div class="note">Marca los lotes transportados. Al seleccionarlos se suman sus kilos.</div>
+      <div class="pick" id="flPick">${liqs.map(pickL).join("")}</div>
+
+      <div class="calc" id="flCalc"></div>
+    </div>`,
+    pie:`<button class="btn primary" id="flSave">Registrar flete</button>`
+  });
+
+  const $ = id => document.getElementById(id);
+  $("flTra").addEventListener("change", () => {
+    $("flNuevo").style.display = $("flTra").value === "__new" ? "grid" : "none";
+  });
+
+  function bindPick(){
+    $("flPick").querySelectorAll("[data-pick]").forEach(b =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.pick;
+        if(draft.sel[id]) delete draft.sel[id]; else draft.sel[id] = true;
+        $("flPick").innerHTML = liqs.map(pickL).join("");
+        bindPick();
+        const suma = round2(Object.keys(draft.sel).reduce((t,id) => t + (S.liquidaciones.find(x=>x.id===id)?.kg||0), 0));
+        if(suma > 0) $("flKg").value = suma;
+        recal();
+      }));
+  }
+  bindPick();
+
+  function recal(){
+    const kg = num($("flKg").value), monto = num($("flMon").value);
+    $("flCalc").innerHTML = `
+      <div class="ln"><span>Lotes en este flete</span><b>${Object.keys(draft.sel).length}</b></div>
+      <div class="ln"><span>Kilos transportados</span><b>${nk(kg)} kg</b></div>
+      ${kg>0 && monto>0 ? `<div class="ln"><span>Costo por kilo</span><b>${S_(monto/kg)}</b></div>` : ""}
+      <div class="ln total"><span>Monto del flete</span><b>${S_(monto)}</b></div>`;
+  }
+  ["flKg","flMon"].forEach(id => $(id).addEventListener("input", recal));
+  recal();
+
+  $("flSave").addEventListener("click", () => {
+    const monto = num($("flMon").value);
+    if(monto <= 0) return toast("Ingresa el monto del flete.");
+
+    let transportistaId = $("flTra").value;
+    if(transportistaId === "__new"){
+      const nom = $("flNom").value.trim();
+      if(!nom) return toast("Escribe el nombre del transportista.");
+      transportistaId = uid();
+      S.transportistas.push({id:transportistaId, nombre:nom.toUpperCase(), doc:$("flRuc").value.trim()});
+    }
+    const f = {
+      id:uid(), numero:$("flNum").value.trim() || `FLE-${S.seq.fle}`,
+      fecha:$("flFec").value || hoy(), transportistaId,
+      kg:round2(num($("flKg").value)), monto:round2(monto),
+      liqIds:Object.keys(draft.sel), pagos:[]
+    };
+    S.fletes.push(f);
+    S.seq.fle++;
+    guardar(); render();
+    flujoPago({
+      titulo:`Flete ${f.numero} registrado con éxito`,
+      detalle:`${nk(f.kg)} kg · ${cat("transportistas", transportistaId).nombre}`,
+      pregunta:"¿El flete se acaba de pagar?",
+      siLbl:"Sí, ya lo pagué", noLbl:"No, queda pendiente",
+      monto:f.monto,
+      onPagar:(medio,fe) => { f.pagos.push({fecha:fe, medio, monto:f.monto}); guardar(); render(); }
+    });
+  });
+
+  function pickL(l){
+    const on = !!draft.sel[l.id];
+    return `<div class="pick-item ${on?"on":""}">
+      <button class="pick-head" data-pick="${l.id}">
+        <span class="box">✓</span>
+        <span class="pick-main">
+          <span class="pick-t">${esc(l.numero)}</span>
+          <span class="pick-s">${esc(cat("pescadores", l.pescadorId).nombre)}</span>
+          <span class="pick-q">${nk(l.kg)} kg · ${fecha(l.fecha)}</span>
+        </span>
+      </button>
+    </div>`;
+  }
+}
+
+/* ============================================================
+   DETALLE · LIQUIDACIÓN
+   ============================================================ */
+function verLiq(id){
+  const l = S.liquidaciones.find(x=>x.id===id); if(!l) return;
+  const ep = estadoPago(l, l.neto), saldo = saldoKg(l), pg = pagado(l);
+  const ventasDe = S.ventas.filter(v => v.items.some(i=>i.liqId===id));
+
+  abrirHoja({
+    titulo:`Liquidación ${l.numero}`,
+    cuerpo:`<div class="stack-lg">
+      <div class="card">
+        <div class="rec-top" style="margin-bottom:8px">
+          <span class="chip ${ep}">${ep==="ok"?"Pagada":"Por pagar"}</span>
+          <span class="chip neu">${fecha(l.fecha)}</span>
+        </div>
+        <div style="font-weight:600;margin-bottom:3px">${esc(cat("pescadores", l.pescadorId).nombre)}</div>
+        <div class="note">DNI ${esc(cat("pescadores", l.pescadorId).doc || "—")}</div>
+      </div>
+
+      <div class="calc">
+        <div class="ln"><span>Kilos comprados</span><b>${nk(l.kg)} kg</b></div>
+        <div class="ln"><span>Precio por kilo</span><b>S/ ${n2(l.valorUnit)}</b></div>
+        <div class="ln"><span>Total valor de compra</span><b>${S_(l.total)}</b></div>
+        <div class="ln neg"><span>Retención de IR ${S.cfg.retencion}%</span><b>− ${n2(l.retencion)}</b></div>
+        <div class="ln total"><span>Neto a pagar</span><b>${S_(l.neto)}</b></div>
+      </div>
+
+      <div class="stack">
+        <h2 class="sect">Mercadería</h2>
+        <div class="card">
+          <div class="dl">
+            <div class="r"><span>Comprado</span><b>${nk(l.kg)} kg</b></div>
+            <div class="r"><span>Vendido</span><b>${nk(l.kg-saldo)} kg</b></div>
+            <div class="r"><span><b style="font-family:var(--sans)">Saldo disponible</b></span><b style="color:${saldo>0?"var(--accent)":"var(--ink-3)"};font-size:16px">${nk(saldo)} kg</b></div>
+          </div>
+          <div class="bar"><i style="width:${l.kg?Math.min(100,(l.kg-saldo)/l.kg*100):0}%"></i></div>
+          ${ventasDe.length ? `<div class="note" style="margin-top:10px">Vendida en: ${ventasDe.map(v =>
+            `<b style="color:var(--ink);font-family:var(--mono)">${esc(v.numero)}</b> (${nk(v.items.filter(i=>i.liqId===id).reduce((t,i)=>t+i.kg,0))} kg)`).join(" · ")}</div>` : ""}
+        </div>
+      </div>
+
+      ${bloquePagos(l, l.neto, "pago")}
+    </div>`,
+    pie:`<div class="btnrow">
+      <button class="btn danger sm" style="flex:0 0 auto" data-del="${l.id}">Eliminar</button>
+      ${ep==="pend" ? `<button class="btn primary" data-pagar="${l.id}">Registrar pago de ${S_(l.neto-pg)}</button>`
+                    : `<button class="btn ghost" data-close>Cerrar</button>`}
+    </div>`
+  });
+
+  const bp = $sheet.querySelector("[data-pagar]");
+  if(bp) bp.addEventListener("click", () =>
+    pedirMedio({monto:round2(l.neto-pg), onElegir:(medio,f) => {
+      l.pagos.push({fecha:f, medio, monto:round2(l.neto-pg)});
+      guardar(); render(); cerrarHoja(); toast(`Pago registrado con éxito · ${medioNombre(medio)}`);
+    }}));
+
+  $sheet.querySelector("[data-del]").addEventListener("click", () => {
+    if(ventasDe.length) return toast(`No se puede: está vendida en ${ventasDe.map(v=>v.numero).join(", ")}.`);
+    confirmar("¿Eliminar esta liquidación?", `${l.numero} · ${nk(l.kg)} kg · ${S_(l.neto)}`, () => {
+      S.liquidaciones = S.liquidaciones.filter(x => x.id !== id);
+      S.fletes.forEach(f => f.liqIds = f.liqIds.filter(x => x !== id));
+      guardar(); render(); cerrarHoja(); toast("Liquidación eliminada.");
+    });
+  });
+}
+
+/* ============================================================
+   DETALLE · VENTA
+   ============================================================ */
+function verVenta(id){
+  const v = S.ventas.find(x=>x.id===id); if(!v) return;
+  const ep = estadoPago(v, v.netoCobrar), pg = pagado(v);
+  const costo = ventaCosto(v), margen = ventaMargen(v);
+  const fct = v.factoringId ? S.factorings.find(f=>f.id===v.factoringId) : null;
+
+  abrirHoja({
+    titulo:`Venta ${v.numero}`,
+    cuerpo:`<div class="stack-lg">
+      <div class="card">
+        <div class="rec-top" style="margin-bottom:8px">
+          <span class="chip ${ep}">${ep==="factoring"?"Cobrada por factoring":ep==="ok"?"Cobrada":"Por cobrar"}</span>
+          <span class="chip neu">${fecha(v.fecha)}</span>
+        </div>
+        <div style="font-weight:600;margin-bottom:3px">${esc(cat("clientes", v.clienteId).nombre)}</div>
+        <div class="note">RUC ${esc(cat("clientes", v.clienteId).doc || "—")}</div>
+        ${fct ? `<div class="note" style="margin-top:8px">Cedida en la operación <b style="color:var(--ink);font-family:var(--mono)">${esc(fct.numero)}</b> a ${esc(cat("factores", fct.factorId).nombre)}.</div>` : ""}
+      </div>
+
+      <div class="stack">
+        <h2 class="sect">Sustento de la venta</h2>
+        <div class="card"><div class="dl">
+          ${v.items.map(i => {
+            const l = S.liquidaciones.find(x=>x.id===i.liqId);
+            const parcial = l && i.kg < l.kg - 0.009;
+            return `<div class="r">
+              <span><b style="font-family:var(--mono);color:var(--ink)">${esc(l?l.numero:"—")}</b>
+                <span style="display:block;font-size:12px;color:var(--ink-3)">${esc(l?cat("pescadores",l.pescadorId).nombre:"")}${parcial?` · parcial de ${nk(l.kg)} kg`:""}</span></span>
+              <b>${nk(i.kg)} kg<span style="display:block;font-size:11.5px;color:var(--ink-3);font-weight:400">${S_(i.kg*i.costoUnit)}</span></b>
+            </div>`;
+          }).join("")}
+          <hr class="hr">
+          <div class="r"><span><b style="font-family:var(--sans)">Total</b></span><b>${nk(ventaKg(v))} kg</b></div>
+        </div></div>
+      </div>
+
+      <div class="calc">
+        <div class="ln"><span>Importe de la factura</span><b>${S_(v.total)}</b></div>
+        <div class="ln"><span>Precio de venta por kilo</span><b>S/ ${n2(v.total/(ventaKg(v)||1))}</b></div>
+        ${v.detraccion ? `<div class="ln neg"><span>Detracción (Banco de la Nación)</span><b>− ${n2(v.detraccion)}</b></div>` : ""}
+        <div class="ln total"><span>Neto a cobrar del cliente</span><b>${S_(v.netoCobrar)}</b></div>
+        <hr class="hr">
+        <div class="ln"><span>Costo de la mercadería</span><b>${S_(costo)}</b></div>
+        <div class="ln"><span><b style="font-family:var(--sans)">Margen bruto</b></span><b style="color:${margen>=0?"var(--accent)":"var(--danger)"};font-size:17px">${S_(margen)}</b></div>
+      </div>
+
+      ${bloquePagos(v, v.netoCobrar, "cobro")}
+    </div>`,
+    pie:`<div class="btnrow">
+      <button class="btn danger sm" style="flex:0 0 auto" data-del="${v.id}">Eliminar</button>
+      ${ep==="pend" ? `<button class="btn primary" data-cobrar="${v.id}">Registrar cobro de ${S_(v.netoCobrar-pg)}</button>`
+                    : `<button class="btn ghost" data-close>Cerrar</button>`}
+    </div>`
+  });
+
+  const bc = $sheet.querySelector("[data-cobrar]");
+  if(bc) bc.addEventListener("click", () =>
+    pedirMedio({monto:round2(v.netoCobrar-pg), verbo:"cobro", onElegir:(medio,f) => {
+      v.pagos.push({fecha:f, medio, monto:round2(v.netoCobrar-pg)});
+      guardar(); render(); cerrarHoja(); toast(`Cobro registrado con éxito · ${medioNombre(medio)}`);
+    }}));
+
+  $sheet.querySelector("[data-del]").addEventListener("click", () => {
+    if(v.factoringId) return toast("Primero elimina la operación de factoring que la incluye.");
+    confirmar("¿Eliminar esta venta?", `${v.numero} · ${S_(v.total)}. Los kilos vuelven al saldo de sus liquidaciones.`, () => {
+      S.ventas = S.ventas.filter(x => x.id !== id);
+      guardar(); render(); cerrarHoja(); toast("Venta eliminada. Saldos restituidos.");
+    });
+  });
+}
+
+/* ============================================================
+   DETALLE · FACTORING
+   ============================================================ */
+function verFactoring(f_id){
+  const f = S.factorings.find(x=>x.id===f_id); if(!f) return;
+  const pg = pagado(f), ep = estadoPago(f, f.neto);
+
+  abrirHoja({
+    titulo:`Factoring ${f.numero}`,
+    cuerpo:`<div class="stack-lg">
+      <div class="card">
+        <div class="rec-top" style="margin-bottom:8px">
+          <span class="chip ${ep}">${ep==="ok"?"Neto recibido":"Neto pendiente"}</span>
+          <span class="chip neu">${fecha(f.fecha)}</span>
+        </div>
+        <div style="font-weight:600">${esc(cat("factores", f.factorId).nombre)}</div>
+        <div class="note">${f.modo==="lote" ? `Descuento único de ${f.tasa}% sobre todo el lote.` : "Descuento asignado factura por factura."}</div>
+      </div>
+
+      <div class="stack">
+        <h2 class="sect">Facturas cedidas</h2>
+        <div class="card"><div class="dl">
+          ${f.detalle.map(d => `<div class="r">
+            <span><b style="font-family:var(--mono);color:var(--ink)">${esc(d.numero)}</b>
+              <span style="display:block;font-size:12px;color:var(--ink-3)">${S_(d.bruto)} − ${d.tasa}%</span></span>
+            <b>${S_(d.neto)}</b></div>`).join("")}
+        </div></div>
+      </div>
+
+      <div class="calc">
+        <div class="ln"><span>Valor bruto cedido</span><b>${S_(f.bruto)}</b></div>
+        <div class="ln neg"><span>Descuento del factor</span><b>− ${n2(f.descuento)}</b></div>
+        <div class="ln total"><span>Neto a recibir</span><b>${S_(f.neto)}</b></div>
+      </div>
+
+      ${bloquePagos(f, f.neto, "cobro")}
+    </div>`,
+    pie:`<div class="btnrow">
+      <button class="btn danger sm" style="flex:0 0 auto" data-del="${f.id}">Eliminar</button>
+      ${ep==="pend" ? `<button class="btn primary" data-cobrar="1">Registrar cobro de ${S_(f.neto-pg)}</button>`
+                    : `<button class="btn ghost" data-close>Cerrar</button>`}
+    </div>`
+  });
+
+  const bc = $sheet.querySelector("[data-cobrar]");
+  if(bc) bc.addEventListener("click", () =>
+    pedirMedio({monto:round2(f.neto-pg), verbo:"cobro", onElegir:(medio,fe) => {
+      f.pagos.push({fecha:fe, medio, monto:round2(f.neto-pg)});
+      guardar(); render(); cerrarHoja(); toast(`Cobro registrado con éxito · ${medioNombre(medio)}`);
+    }}));
+
+  $sheet.querySelector("[data-del]").addEventListener("click", () =>
+    confirmar("¿Eliminar esta operación?", `${f.numero}. Las ${f.ventaIds.length} facturas vuelven a quedar por cobrar.`, () => {
+      f.ventaIds.forEach(vid => {
+        const v = S.ventas.find(x=>x.id===vid);
+        if(v){ v.factoringId = null; v.pagos = v.pagos.filter(p => p.medio !== "FACTORING" || p.nota !== f.numero); }
+      });
+      S.factorings = S.factorings.filter(x => x.id !== f_id);
+      guardar(); render(); cerrarHoja(); toast("Operación eliminada.");
+    }));
+}
+
+/* ============================================================
+   DETALLE · FLETE
+   ============================================================ */
+function verFlete(id){
+  const f = S.fletes.find(x=>x.id===id); if(!f) return;
+  const ep = estadoPago(f, f.monto), pg = pagado(f);
+
+  abrirHoja({
+    titulo:`Flete ${f.numero}`,
+    cuerpo:`<div class="stack-lg">
+      <div class="card">
+        <div class="rec-top" style="margin-bottom:8px">
+          <span class="chip ${ep}">${ep==="ok"?"Pagado":"Por pagar"}</span>
+          <span class="chip neu">${fecha(f.fecha)}</span>
+        </div>
+        <div style="font-weight:600">${esc(cat("transportistas", f.transportistaId).nombre)}</div>
+      </div>
+
+      <div class="calc">
+        <div class="ln"><span>Kilos transportados</span><b>${nk(f.kg)} kg</b></div>
+        ${f.kg>0 ? `<div class="ln"><span>Costo por kilo</span><b>${S_(f.monto/f.kg)}</b></div>` : ""}
+        <div class="ln total"><span>Monto del flete</span><b>${S_(f.monto)}</b></div>
+      </div>
+
+      ${f.liqIds.length ? `<div class="stack">
+        <h2 class="sect">Liquidaciones transportadas</h2>
+        <div class="card"><div class="dl">
+          ${f.liqIds.map(lid => { const l = S.liquidaciones.find(x=>x.id===lid); if(!l) return "";
+            return `<div class="r"><span><b style="font-family:var(--mono);color:var(--ink)">${esc(l.numero)}</b>
+              <span style="display:block;font-size:12px;color:var(--ink-3)">${esc(cat("pescadores",l.pescadorId).nombre)}</span></span>
+              <b>${nk(l.kg)} kg</b></div>`; }).join("")}
+        </div></div>
+      </div>` : ""}
+
+      ${bloquePagos(f, f.monto, "pago")}
+    </div>`,
+    pie:`<div class="btnrow">
+      <button class="btn danger sm" style="flex:0 0 auto" data-del="${f.id}">Eliminar</button>
+      ${ep==="pend" ? `<button class="btn primary" data-pagar="1">Registrar pago de ${S_(f.monto-pg)}</button>`
+                    : `<button class="btn ghost" data-close>Cerrar</button>`}
+    </div>`
+  });
+
+  const bp = $sheet.querySelector("[data-pagar]");
+  if(bp) bp.addEventListener("click", () =>
+    pedirMedio({monto:round2(f.monto-pg), onElegir:(medio,fe) => {
+      f.pagos.push({fecha:fe, medio, monto:round2(f.monto-pg)});
+      guardar(); render(); cerrarHoja(); toast(`Pago registrado con éxito · ${medioNombre(medio)}`);
+    }}));
+
+  $sheet.querySelector("[data-del]").addEventListener("click", () =>
+    confirmar("¿Eliminar este flete?", `${f.numero} · ${S_(f.monto)}`, () => {
+      S.fletes = S.fletes.filter(x => x.id !== id);
+      guardar(); render(); cerrarHoja(); toast("Flete eliminado.");
+    }));
+}
+
+/* ---------- bloque de pagos reutilizable ---------- */
+function bloquePagos(d, objetivo, verbo){
+  const pg = pagado(d), falta = round2(objetivo - pg);
+  const ps = d.pagos || [];
+  return `<div class="stack">
+    <h2 class="sect">${verbo === "cobro" ? "Cobros" : "Pagos"}</h2>
+    <div class="card">
+      ${ps.length ? `<div class="dl">${ps.map(p => `<div class="r">
+          <span><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${medioColor(p.medio)};margin-right:7px"></span>${esc(p.medio==="FACTORING"?"Factoring "+(p.nota||""):medioNombre(p.medio))}
+            <span style="display:block;font-size:12px;color:var(--ink-3);margin-left:16px">${fecha(p.fecha)}</span></span>
+          <b>${S_(p.monto)}</b></div>`).join("")}
+        ${falta > 0.009 ? `<hr class="hr"><div class="r"><span><b style="font-family:var(--sans);color:var(--warn)">Falta</b></span><b style="color:var(--warn)">${S_(falta)}</b></div>` : ""}
+        </div>`
+        : `<div class="note">Sin ${verbo === "cobro" ? "cobros" : "pagos"} registrados. Queda pendiente <b style="color:var(--warn)">${S_(falta)}</b>.</div>`}
+    </div>
+  </div>`;
+}
+
+function confirmar(titulo, detalle, onSi){
+  abrirHoja({
+    titulo:"Confirmar",
+    cuerpo:`<div class="confirm">
+      <div class="mark" style="background:var(--danger-soft);color:var(--danger)">!</div>
+      <h4>${esc(titulo)}</h4><p>${esc(detalle)}</p></div>`,
+    pie:`<div class="btnrow">
+      <button class="btn ghost" data-close>Cancelar</button>
+      <button class="btn danger" id="cfmSi">Sí, eliminar</button></div>`
+  });
+  document.getElementById("cfmSi").addEventListener("click", onSi);
+}
+
+/* ============================================================
+   REPORTES · EXPORTAR
+   ============================================================ */
+function descargar(nombre, texto, tipo){
+  const blob = new Blob(["﻿" + texto], {type: tipo + ";charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  toast(`Archivo ${nombre} generado.`);
+}
+const csvCell = v => {
+  const s = String(v==null?"":v);
+  return /[;"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+};
+const aCSV = (cab, filas) => [cab, ...filas].map(r => r.map(csvCell).join(";")).join("\r\n");
+
+function aTXT(titulo, cab, filas){
+  const anchos = cab.map((c,i) => Math.max(String(c).length, ...filas.map(f => String(f[i]==null?"":f[i]).length)));
+  const linea = (r) => r.map((c,i) => String(c==null?"":c).padEnd(anchos[i])).join("  ");
+  const sep = anchos.map(a => "-".repeat(a)).join("  ");
+  return [titulo, "LIALPESCA E.I.R.L. · RUC 20616172051",
+          "Generado el " + fecha(hoy()), "", linea(cab), sep, ...filas.map(linea)].join("\r\n");
+}
+
+const REPORTES = {
+  compras: () => ({
+    titulo:"REPORTE DE LIQUIDACIONES DE COMPRA",
+    cab:["N°","Fecha","Pescador","DNI","Kg","S/ x kg","Total S/","Retencion S/","Neto S/","Estado pago","Medio","Fecha pago","Kg vendidos","Saldo kg"],
+    filas:S.liquidaciones.slice().sort((a,b)=>(a.fecha+a.numero).localeCompare(b.fecha+b.numero)).map(l => {
+      const p = cat("pescadores", l.pescadorId), ult = (l.pagos||[])[l.pagos.length-1];
+      return [l.numero, fecha(l.fecha), p.nombre, p.doc, l.kg, l.valorUnit.toFixed(6), l.total.toFixed(2),
+              l.retencion.toFixed(2), l.neto.toFixed(2),
+              estadoPago(l,l.neto)==="ok"?"PAGADA":"PENDIENTE",
+              ult?medioNombre(ult.medio):"", ult?fecha(ult.fecha):"",
+              round2(l.kg-saldoKg(l)), saldoKg(l)];
+    })
+  }),
+  ventas: () => ({
+    titulo:"REPORTE DE FACTURAS DE VENTA",
+    cab:["N°","Fecha","Cliente","RUC","Kg","S/ x kg","Importe S/","Detraccion S/","Neto cobrar S/","Costo S/","Margen S/","Margen %","Estado cobro","Medio","Liquidaciones de origen"],
+    filas:S.ventas.slice().sort((a,b)=>(a.fecha+a.numero).localeCompare(b.fecha+b.numero)).map(v => {
+      const c = cat("clientes", v.clienteId), k = ventaKg(v), co = ventaCosto(v), m = ventaMargen(v);
+      const ult = (v.pagos||[])[v.pagos.length-1], ep = estadoPago(v, v.netoCobrar);
+      const orig = v.items.map(i => {
+        const l = S.liquidaciones.find(x=>x.id===i.liqId);
+        return `${l?l.numero:"?"} (${nk(i.kg)} kg)`;
+      }).join(" + ");
+      return [v.numero, fecha(v.fecha), c.nombre, c.doc, k, (v.total/(k||1)).toFixed(4), v.total.toFixed(2),
+              v.detraccion.toFixed(2), v.netoCobrar.toFixed(2), co.toFixed(2), m.toFixed(2),
+              co?((m/co)*100).toFixed(1):"",
+              ep==="factoring"?"FACTORING":ep==="ok"?"COBRADA":"PENDIENTE",
+              ult?(ult.medio==="FACTORING"?"Factoring":medioNombre(ult.medio)):"", orig];
+    })
+  }),
+  factoring: () => ({
+    titulo:"REPORTE DE OPERACIONES DE FACTORING",
+    cab:["Operacion","Fecha","Empresa","Factura","Bruto S/","Tasa %","Descuento S/","Neto S/"],
+    filas:S.factorings.slice().sort((a,b)=>(a.fecha+a.numero).localeCompare(b.fecha+b.numero))
+      .flatMap(f => f.detalle.map(d =>
+        [f.numero, fecha(f.fecha), cat("factores", f.factorId).nombre, d.numero,
+         d.bruto.toFixed(2), d.tasa, d.descuento.toFixed(2), d.neto.toFixed(2)]))
+  }),
+  fletes: () => ({
+    titulo:"REPORTE DE FLETES",
+    cab:["N°","Fecha","Transportista","Kg","Monto S/","S/ x kg","Estado","Medio","Liquidaciones"],
+    filas:S.fletes.slice().sort((a,b)=>(a.fecha+a.numero).localeCompare(b.fecha+b.numero)).map(f => {
+      const ult = (f.pagos||[])[f.pagos.length-1];
+      return [f.numero, fecha(f.fecha), cat("transportistas", f.transportistaId).nombre, f.kg, f.monto.toFixed(2),
+              f.kg?(f.monto/f.kg).toFixed(4):"", estadoPago(f,f.monto)==="ok"?"PAGADO":"PENDIENTE",
+              ult?medioNombre(ult.medio):"",
+              f.liqIds.map(i => (S.liquidaciones.find(x=>x.id===i)||{}).numero || "?").join(" + ")];
+    })
+  })
+};
+
+function abrirReportes(){
+  const stamp = hoy().replace(/-/g,"");
+  abrirHoja({
+    titulo:"Reportes y datos",
+    cuerpo:`<div class="stack-lg">
+      <div class="stack">
+        <h2 class="sect">Exportar reportes</h2>
+        <div class="note">El <b style="color:var(--ink)">CSV</b> se abre directo en Excel. El <b style="color:var(--ink)">TXT</b> es una tabla alineada para leer o imprimir.</div>
+        ${[["compras","Liquidaciones de compra",S.liquidaciones.length],
+           ["ventas","Facturas de venta",S.ventas.length],
+           ["factoring","Operaciones de factoring",S.factorings.length],
+           ["fletes","Fletes",S.fletes.length]].map(([k,t,n]) => `
+          <div class="card">
+            <div class="rowsplit" style="margin-bottom:9px">
+              <b style="font-size:14.5px">${t}</b><span class="chip neu">${n} registro${n===1?"":"s"}</span>
+            </div>
+            <div class="btnrow">
+              <button class="btn ghost sm" data-exp="${k}|csv" ${n?"":"disabled"}>Excel (CSV)</button>
+              <button class="btn ghost sm" data-exp="${k}|txt" ${n?"":"disabled"}>Texto (TXT)</button>
+            </div>
+          </div>`).join("")}
+      </div>
+
+      <div class="stack">
+        <h2 class="sect">Respaldo</h2>
+        <div class="note">Tus datos viven solo en este celular. Guarda un respaldo cada cierto tiempo — el archivo lo puedes mandar por WhatsApp o correo a ti mismo.</div>
+        <div class="btnrow">
+          <button class="btn ghost sm" id="rpBackup">Descargar respaldo</button>
+          <button class="btn ghost sm" id="rpRestore">Restaurar respaldo</button>
+        </div>
+        <input type="file" id="rpFile" accept="application/json,.json" style="display:none">
+      </div>
+
+      <div class="stack">
+        <h2 class="sect">Parámetros</h2>
+        <div class="grid2">
+          <div class="field"><label for="cfRet">Retención de IR %</label><input id="cfRet" inputmode="decimal" value="${S.cfg.retencion}"></div>
+          <div class="field"><label for="cfDet">Detracción %</label><input id="cfDet" inputmode="decimal" value="${S.cfg.detraccion}"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="cfSL">Serie liquidaciones</label><input id="cfSL" value="${esc(S.cfg.serieLiq)}"></div>
+          <div class="field"><label for="cfSV">Serie ventas</label><input id="cfSV" value="${esc(S.cfg.serieVen)}"></div>
+        </div>
+        <button class="btn ghost sm" id="cfSave" style="width:100%">Guardar parámetros</button>
+      </div>
+
+      <div class="stack">
+        <h2 class="sect">Zona de riesgo</h2>
+        <button class="btn danger sm" id="rpWipe" style="width:100%">Borrar todos los movimientos</button>
+      </div>
+    </div>`
+  });
+
+  $sheet.querySelectorAll("[data-exp]").forEach(b =>
+    b.addEventListener("click", () => {
+      const [k, fmt] = b.dataset.exp.split("|");
+      const r = REPORTES[k]();
+      if(fmt === "csv") descargar(`${k}_${stamp}.csv`, aCSV(r.cab, r.filas), "text/csv");
+      else descargar(`${k}_${stamp}.txt`, aTXT(r.titulo, r.cab, r.filas), "text/plain");
+    }));
+
+  document.getElementById("rpBackup").addEventListener("click", () =>
+    descargar(`respaldo_lialpesca_${stamp}.json`, JSON.stringify(S, null, 2), "application/json"));
+
+  const file = document.getElementById("rpFile");
+  document.getElementById("rpRestore").addEventListener("click", () => file.click());
+  file.addEventListener("change", () => {
+    const f = file.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try{
+        const d = JSON.parse(rd.result);
+        if(!d.liquidaciones || !d.ventas) throw 0;
+        S = d; if(!S.ui) S.ui = {tab:"inicio", fCompras:"todas", fVentas:"todas"};
+        guardar(); render(); cerrarHoja(); toast("Respaldo restaurado con éxito.");
+      }catch(e){ toast("Ese archivo no es un respaldo válido."); }
+    };
+    rd.readAsText(f);
+  });
+
+  document.getElementById("cfSave").addEventListener("click", () => {
+    S.cfg.retencion  = num(document.getElementById("cfRet").value) || 1.5;
+    S.cfg.detraccion = num(document.getElementById("cfDet").value) || 1.5;
+    S.cfg.serieLiq   = document.getElementById("cfSL").value.trim() || "E001";
+    S.cfg.serieVen   = document.getElementById("cfSV").value.trim() || "E001";
+    guardar(); render(); toast("Parámetros guardados.");
+  });
+
+  document.getElementById("rpWipe").addEventListener("click", () =>
+    confirmar("¿Borrar todos los movimientos?", "Se eliminan liquidaciones, ventas, factoring y fletes. Los pescadores y clientes se conservan. Esto no se puede deshacer.", () => {
+      S.liquidaciones = []; S.ventas = []; S.factorings = []; S.fletes = [];
+      S.seq = {liq:1, ven:1, fac:1, fle:1};
+      guardar(); render(); cerrarHoja(); toast("Movimientos borrados.");
+    }));
+}
+document.getElementById("btnReportes").addEventListener("click", abrirReportes);
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+const ACT = {
+  nuevaLiq, nuevaVenta, nuevoFactoring, nuevoFlete,
+  verLiq, verVenta, verFactoring, verFlete,
+  filtC: v => { S.ui.fCompras = v; guardar(); render(); },
+  filtV: v => { S.ui.fVentas = v; guardar(); render(); },
+  irPend: tab => {
+    if(tab === "compras") S.ui.fCompras = "pendientes"; else S.ui.fVentas = "pendientes";
+    ir(tab);
+  }
+};
+
+render();
+</script>
