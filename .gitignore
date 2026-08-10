@@ -10,17 +10,26 @@
 # 1. Ignorar absolutamente todo
 /*
 
-# 2. Autorizar solo lo que es codigo o documentacion
+# 2. Autorizar solo lo que es codigo, icono o documentacion
 !/.gitignore
+!/.nojekyll
 !/README.md
-!/app/
+!/index.html
+!/manifest.json
+!/serve.js
+!/icono.svg
+!/icono.png
+!/icono-192.png
 
-# 3. Dentro de app/, bloquear cualquier dato que se cuele
-app/*.json
-app/*.csv
-app/*.txt
-app/*.xlsx
-app/*.pdf
+# 3. Nunca publicar datos, ni siquiera si caen en la raiz
+/respaldo*.json
+/compras*.csv
+/ventas*.csv
+/factoring*.csv
+/fletes*.csv
+*.xlsx
+*.xls
+*.pdf
 
 # 4. Basura del sistema
 .DS_Store

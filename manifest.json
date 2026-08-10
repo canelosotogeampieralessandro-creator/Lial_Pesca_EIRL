@@ -1,0 +1,39 @@
+{
+  "name": "Gestión de Cuentas — LIALPESCA",
+  "short_name": "Cuentas",
+  "description": "Liquidaciones de compra enlazadas a facturas de venta, con control de pagos, cobros, factoring y fletes.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "es-PE",
+  "dir": "ltr",
+  "background_color": "#EDF0F1",
+  "theme_color": "#05715E",
+  "icons": [
+    {
+      "src": "icono.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icono.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icono.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -3,8 +3,12 @@
 Aplicación de celular para controlar cuentas por pagar y por cobrar en la compra-venta
 de pota, enlazando cada **liquidación de compra** con la **factura de venta** que la sustenta.
 
+**▶ Abrir la app:**
+<https://canelosotogeampieralessandro-creator.github.io/Lial_Pesca_EIRL/>
+
 Es un solo archivo HTML, sin dependencias ni servidor. Se abre en el navegador del
-celular y se instala con **"Agregar a pantalla de inicio"**. Funciona sin señal.
+celular y se instala con **"Agregar a pantalla de inicio"**: queda con su propio ícono y
+se abre a pantalla completa, como una app normal. Funciona sin señal.
 
 ## Qué hace
 
@@ -52,14 +56,24 @@ Por la misma razón el `.gitignore` funciona como lista blanca: ignora toda la c
 solo autoriza `app/` y este README, de modo que las facturas, liquidaciones y hojas de
 cálculo del negocio no puedan subirse por descuido.
 
+## Estructura
+
+| Archivo | Qué es |
+|---|---|
+| `index.html` | La app completa: estilos, interfaz y lógica en un solo archivo |
+| `manifest.json` | Permite instalarla en la pantalla de inicio a pantalla completa |
+| `icono.svg` · `icono.png` · `icono-192.png` | Ícono de la app |
+| `serve.js` | Servidor local, solo para probar en la computadora |
+| `.nojekyll` | Evita que GitHub Pages procese el sitio con Jekyll |
+
 ## Uso local
 
 ```bash
-node app/serve.js
+node serve.js
 ```
 
 Luego abre <http://localhost:4177>. Solo hace falta para desarrollar; en el celular
-basta con abrir el archivo publicado.
+basta con abrir la URL publicada.
 
 ## Parámetros
 
