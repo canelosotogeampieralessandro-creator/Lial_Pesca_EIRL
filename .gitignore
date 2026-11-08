@@ -14,6 +14,8 @@
 !/.gitignore
 !/.nojekyll
 !/README.md
+!/PRODUCT.md
+!/DESIGN.md
 !/index.html
 !/manifest.json
 !/serve.js
