@@ -462,6 +462,22 @@ tfoot td{padding:10px 12px; border-top:1px solid var(--line); font-weight:650; b
 #toast.on{opacity:1; transform:translate(-50%,0)}
 @media (min-width:1024px){ #toast{bottom:24px} }
 
+/* aviso de version nueva publicada */
+#upd{
+  position:fixed; left:12px; right:12px; bottom:calc(76px + env(safe-area-inset-bottom)); z-index:88;
+  background:var(--ink); color:var(--bg); border-radius:var(--r-card); padding:11px 12px 11px 14px;
+  display:none; align-items:center; gap:12px; box-shadow:var(--sh-pop); font-size:var(--t-sm);
+}
+#upd.on{display:flex}
+#upd span{flex:1; line-height:1.3}
+#upd span small{display:block; opacity:.7; font-size:var(--t-xs)}
+#upd button{
+  appearance:none; cursor:pointer; flex:none; border:0; border-radius:var(--r-ctl);
+  background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:var(--t-sm);
+  font-weight:650; padding:8px 13px;
+}
+@media (min-width:1024px){ #upd{left:auto; right:24px; bottom:24px; max-width:380px} }
+
 /* estado de sincronizacion */
 .sync{display:flex; align-items:center; gap:7px; padding:7px 9px; border-radius:var(--r-ctl); font-size:var(--t-xs); font-weight:600; color:var(--ink-2); width:100%; background:none; border:1px solid transparent; cursor:pointer; text-align:left; transition:background .15s ease}
 .sync:hover{background:var(--panel)}
@@ -509,6 +525,7 @@ tfoot td{padding:10px 12px; border-top:1px solid var(--line); font-weight:650; b
 <div id="scrim"></div>
 <div id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTtl"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="upd" role="status"><span>Hay una versión nueva<small>Tus datos no se pierden al actualizar.</small></span><button id="updB">Actualizar</button></div>
 
 <script>
 "use strict";
@@ -2379,8 +2396,28 @@ const ACC = {
   verPend: v => { if(v==="compras") S.ui.fCompras = "pendientes"; else S.ui.fVentas = "pendientes"; ir(v); }
 };
 
+/* ------------------------------------------------------------
+   AVISO DE VERSION NUEVA
+   El navegador guarda la pagina en cache y puede seguir mostrando
+   una version vieja despues de publicar. Esto lo detecta y lo avisa,
+   sin recargar solo: recargar a media liquidacion perderia lo escrito.
+   ------------------------------------------------------------ */
+const VERSION = "2026.11.09-1";
+async function verVersion(){
+  try{
+    const r = await fetch("version.json?t=" + Date.now(), {cache:"no-store"});
+    if(!r.ok) return;
+    const d = await r.json();
+    if(d.v && d.v !== VERSION) document.getElementById("upd").classList.add("on");
+  }catch(e){ /* sin señal: no pasa nada, la app sigue igual */ }
+}
+document.getElementById("updB").addEventListener("click", () => location.reload(true));
+window.addEventListener("online", verVersion);
+document.addEventListener("visibilitychange", () => { if(!document.hidden) verVersion(); });
+
 pintar();
 Sync.iniciar();
+verVersion();
 if(S.migrado){
   delete S.migrado; guardar();
   setTimeout(() => aviso("Tus datos de LIALPESCA se migraron al nuevo sistema."), 700);
