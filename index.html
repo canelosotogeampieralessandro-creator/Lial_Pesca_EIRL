@@ -2402,7 +2402,13 @@ function shAjustes(){
         '</div>' +
         '<button class="btn btn-sec btn-sm" id="cgS" style="width:100%;margin-top:9px">Guardar parámetros</button></div>' +
       '<div class="sec"><div class="sec-hd"><h2>Zona de riesgo</h2></div>' +
-        '<button class="btn btn-dgr btn-sm btn-full" id="wipe">Borrar todos los movimientos</button></div>' +
+        '<p class="muted">Descarga un respaldo antes de usar cualquiera de estos dos.</p>' +
+        '<button class="btn btn-dgr btn-sm btn-full" id="wipe">Borrar los movimientos</button>' +
+        '<p class="muted">Quita liquidaciones, ventas, factoring y fletes. Conserva las empresas ' +
+        'y los contactos que ya registraste.</p>' +
+        '<button class="btn btn-dgr btn-sm btn-full" id="wipeAll" style="margin-top:4px">Dejar la app como recién instalada</button>' +
+        '<p class="muted">Borra además pescadores, clientes, transportistas y empresas de factoring. ' +
+        'Quedan solo las tres empresas del grupo, sin un solo dato. Útil para grabar una demostración.</p></div>' +
     '</div>'
   });
   $sheet.querySelectorAll("[data-ex]").forEach(b => b.addEventListener("click", () => exportar(b.dataset.ex)));
@@ -2457,6 +2463,19 @@ function shAjustes(){
       S.liquidaciones = []; S.ventas = []; S.factorings = []; S.fletes = [];
       S.empresas.forEach(e => S.seq[e.id] = {liq:1, ven:1, fac:1, fle:1});
       guardar(); pintar(); cerrar(); aviso("Movimientos borrados.");
+    }));
+
+  $("wipeAll").addEventListener("click", () => confirmar("¿Dejar la app como recién instalada?",
+    "Se borran los movimientos y también todos los pescadores, clientes, transportistas y empresas de factoring. " +
+    "Quedan únicamente las tres empresas del grupo. No se puede deshacer.", () => {
+      const sync = S.sync, ui = S.ui, cfg = S.cfg, sesion = S.sesion;
+      S = vacio();
+      S.sync = sync; S.ui = ui; S.cfg = cfg; S.sesion = sesion;
+      S.ui.vista = "panel"; S.ui.coCont = "TODAS";
+      S.ui.fCompras = "todas"; S.ui.fVentas = "todas"; S.ui.fCont = "todas";
+      asegurarEmpresas(S);
+      guardar(); pintar(); cerrar();
+      aviso("La app quedó como recién instalada.");
     }));
 }
 
@@ -2534,7 +2553,7 @@ const ACC = {
    una version vieja despues de publicar. Esto lo detecta y lo avisa,
    sin recargar solo: recargar a media liquidacion perderia lo escrito.
    ------------------------------------------------------------ */
-const VERSION = "2026.11.13-3";
+const VERSION = "2026.11.13-4";
 async function verVersion(){
   try{
     const r = await fetch("version.json?t=" + Date.now(), {cache:"no-store"});
