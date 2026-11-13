@@ -576,6 +576,33 @@ const MEDIOS = [
 ];
 const HUES = ["var(--co-1)","var(--co-2)","var(--co-3)","var(--co-4)"];
 
+/* Empresas del grupo. Razon social y RUC son registro publico de SUNAT,
+   no datos personales de terceros, por eso si se versionan aqui.
+   Se pueden editar desde la app; esta lista solo garantiza que existan. */
+const EMPRESAS_FIJAS = [
+  {id:"co_lial",    nombre:"LIALPESCA E.I.R.L.", ruc:"20616172051", hue:0},
+  {id:"co_valpez",  nombre:"VALPEZ E.I.R.L.",    ruc:"20608281381", hue:1},
+  {id:"co_valfish", nombre:"VALFISH E.I.R.L.",   ruc:"20607642011", hue:2}
+];
+const nuevaFija = e => ({id:e.id, nombre:e.nombre, ruc:e.ruc, hue:e.hue,
+                         archivada:false, serieLiq:"E001", serieVen:"E001"});
+
+/* Idempotente: agrega las que falten sin tocar las que ya existen ni
+   duplicar las que el usuario haya renombrado. */
+function asegurarEmpresas(st){
+  if(!Array.isArray(st.empresas)) st.empresas = [];
+  let agregadas = 0;
+  EMPRESAS_FIJAS.forEach(f => {
+    if(st.empresas.some(e => e.id === f.id || (e.ruc && e.ruc === f.ruc))) return;
+    st.empresas.push(nuevaFija(f));
+    agregadas++;
+  });
+  st.empresas.forEach(e => { if(!st.seq[e.id]) st.seq[e.id] = {liq:1, ven:1, fac:1, fle:1}; });
+  if(!st.empresaActiva || !st.empresas.some(e => e.id === st.empresaActiva))
+    st.empresaActiva = st.empresas.length ? st.empresas[0].id : null;
+  return agregadas;
+}
+
 function vacio(){
   return {
     v:2,
@@ -596,17 +623,15 @@ function migrar(){
   const S = vacio();
   if(!v1) return S;
   const id = "co_lial";
-  S.empresas = [{id, nombre:"LIALPESCA E.I.R.L.", ruc:"20616172051", hue:0, archivada:false}];
-  S.empresaActiva = id;
   ["pescadores","clientes","transportistas","factores"].forEach(k => { S[k] = v1[k] || []; });
   ["liquidaciones","ventas","factorings","fletes"].forEach(k => {
     S[k] = (v1[k] || []).map(r => Object.assign({}, r, {empresaId:id, rev:null}));
   });
   S.seq[id] = v1.seq || {liq:1, ven:1, fac:1, fle:1};
   if(v1.cfg){ S.cfg.retencion = v1.cfg.retencion ?? 1.5; S.cfg.detraccion = v1.cfg.detraccion ?? 1.5; }
-  S.empresas[0].serieLiq = (v1.cfg && v1.cfg.serieLiq) || "E001";
-  S.empresas[0].serieVen = (v1.cfg && v1.cfg.serieVen) || "E001";
+  S.empresaActiva = id;
   S.migrado = true;
+  S.serieHeredada = {liq:(v1.cfg && v1.cfg.serieLiq) || "E001", ven:(v1.cfg && v1.cfg.serieVen) || "E001"};
   return S;
 }
 
@@ -619,6 +644,13 @@ if(!S || S.v !== 2) S = vacio();
 if(!S.ui) S.ui = vacio().ui;
 if(!S.sesion) S.sesion = {rol:"propietario", nombre:""};
 if(!S.sync) S.sync = {proveedor:null, config:null, workspace:""};
+if(!S.seq) S.seq = {};
+const empresasNuevas = asegurarEmpresas(S);
+if(S.serieHeredada){
+  const l = S.empresas.find(e => e.id === "co_lial");
+  if(l){ l.serieLiq = S.serieHeredada.liq; l.serieVen = S.serieHeredada.ven; }
+  delete S.serieHeredada;
+}
 
 function guardar(){
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }
@@ -826,6 +858,8 @@ const Sync = {
     this._sello = d.sello;
     const local = {sync:S.sync, ui:S.ui};
     S = Object.assign({}, d.datos, local);
+    if(!S.seq) S.seq = {};
+    asegurarEmpresas(S);
     try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
     pintar();
     aviso("Datos actualizados desde la nube.");
@@ -2402,7 +2436,7 @@ const ACC = {
    una version vieja despues de publicar. Esto lo detecta y lo avisa,
    sin recargar solo: recargar a media liquidacion perderia lo escrito.
    ------------------------------------------------------------ */
-const VERSION = "2026.11.09-1";
+const VERSION = "2026.11.13-1";
 async function verVersion(){
   try{
     const r = await fetch("version.json?t=" + Date.now(), {cache:"no-store"});
@@ -2415,9 +2449,15 @@ document.getElementById("updB").addEventListener("click", () => location.reload(
 window.addEventListener("online", verVersion);
 document.addEventListener("visibilitychange", () => { if(!document.hidden) verVersion(); });
 
+if(empresasNuevas) guardar();
 pintar();
 Sync.iniciar();
 verVersion();
+if(empresasNuevas && !S.migrado){
+  setTimeout(() => aviso(empresasNuevas === 1
+    ? "Se agregó una empresa del grupo."
+    : "Se agregaron las " + empresasNuevas + " empresas del grupo."), 600);
+}
 if(S.migrado){
   delete S.migrado; guardar();
   setTimeout(() => aviso("Tus datos de LIALPESCA se migraron al nuevo sistema."), 700);

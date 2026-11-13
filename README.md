@@ -15,6 +15,10 @@ En computadora adopta una barra lateral y tablas completas, para el contador y p
 **Varias empresas.** Cada una con su RUC, su color de identificación y su propia numeración de
 series. Pescadores, clientes, transportistas y empresas de factoring se comparten entre todas.
 
+El grupo viene cargado: **LIALPESCA E.I.R.L.** (20616172051), **VALPEZ E.I.R.L.** (20608281381)
+y **VALFISH E.I.R.L.** (20607642011). Razón social y RUC son registro público de SUNAT, no datos
+personales, por eso sí se versionan. Se pueden renombrar desde la app y se pueden agregar más.
+
 **Liquidaciones de compra.** Kilos y precio por kilo, o kilos e importe total: lo que falte se
 calcula. La retención de IR y el neto a pagar al pescador salen en vivo. Al guardar pregunta si
 ya se pagó; si sí, se elige BBVA, Interbank o efectivo. Si no, queda en por pagar y se marca
@@ -101,5 +105,7 @@ Las compras se registran como **liquidaciones de compra** (pescador con DNI). La
 compra a proveedores con RUC** todavía no tienen módulo propio: si el grupo las usa, hoy quedan
 fuera del costo calculado.
 
-Los catálogos de personas arrancan vacíos a propósito: son datos personales de terceros y este
-repositorio es público. El `.gitignore` funciona como lista blanca por la misma razón.
+Los catálogos de **personas** (pescadores, clientes, transportistas) arrancan vacíos a propósito:
+son datos personales de terceros y este repositorio es público. Las empresas del grupo sí vienen
+cargadas, porque su razón social y su RUC son información pública de SUNAT. El `.gitignore`
+funciona como lista blanca por la misma razón.
