@@ -2300,6 +2300,76 @@ function exportar(arg){
 }
 
 /* ============================================================
+   COMBINAR RESPALDOS
+   Mientras no haya nube, el respaldo es el puente entre el gerente
+   y el contador. Reemplazar borraria el trabajo del otro, asi que
+   se combina registro por registro.
+   ============================================================ */
+const clavePago = p => [p.fecha, p.medio, (p.monto||0).toFixed(2), p.nota||""].join("|");
+
+function unirPagos(a, b){
+  const out = (a||[]).slice(), vistos = new Set(out.map(clavePago));
+  (b||[]).forEach(p => { const k = clavePago(p); if(!vistos.has(k)){ out.push(p); vistos.add(k); } });
+  return out.sort((x,y) => String(x.fecha).localeCompare(String(y.fecha)));
+}
+
+/* Gana la revision mas reciente; una marca real gana sobre la ausencia. */
+function mejorRev(a, b){
+  if(!a) return b || null;
+  if(!b) return a;
+  return String(b.fecha||"") >= String(a.fecha||"") ? b : a;
+}
+
+function fusionar(local, entra){
+  const out = JSON.parse(JSON.stringify(local));
+  const r = {nuevos:0, actualizados:0, catalogos:0, empresas:0};
+
+  ["empresas","pescadores","clientes","transportistas","factores"].forEach(k => {
+    if(!Array.isArray(out[k])) out[k] = [];
+    const idx = new Set(out[k].map(x => x.id));
+    (entra[k]||[]).forEach(x => {
+      if(idx.has(x.id)) return;
+      out[k].push(x); idx.add(x.id);
+      if(k === "empresas") r.empresas++; else r.catalogos++;
+    });
+  });
+
+  ["liquidaciones","ventas","factorings","fletes"].forEach(k => {
+    if(!Array.isArray(out[k])) out[k] = [];
+    const idx = new Map(out[k].map(x => [x.id, x]));
+    (entra[k]||[]).forEach(e => {
+      const l = idx.get(e.id);
+      if(!l){ out[k].push(e); idx.set(e.id, e); r.nuevos++; return; }
+      const pagos = unirPagos(l.pagos, e.pagos);
+      const rev   = mejorRev(l.rev, e.rev);
+      Object.assign(l, e, {pagos, rev});
+      r.actualizados++;
+    });
+  });
+
+  out.seq = out.seq || {};
+  Object.keys(entra.seq || {}).forEach(eid => {
+    const a = out.seq[eid] || {liq:1, ven:1, fac:1, fle:1}, b = entra.seq[eid];
+    out.seq[eid] = {liq:Math.max(a.liq||1, b.liq||1), ven:Math.max(a.ven||1, b.ven||1),
+                    fac:Math.max(a.fac||1, b.fac||1), fle:Math.max(a.fle||1, b.fle||1)};
+  });
+
+  return {estado:out, r};
+}
+
+function leerRespaldo(file, alLeer){
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const d = JSON.parse(rd.result);
+      if(!d || !Array.isArray(d.liquidaciones) || !Array.isArray(d.ventas)) throw 0;
+      alLeer(d);
+    }catch(e){ aviso("Ese archivo no es un respaldo válido."); }
+  };
+  rd.readAsText(file);
+}
+
+/* ============================================================
    AJUSTES Y NUBE
    ============================================================ */
 function shAjustes(){
@@ -2314,11 +2384,15 @@ function shAjustes(){
           '<div class="btn-row"><button class="btn btn-sec btn-sm" data-ex="' + o[0] + '|csv">Excel (CSV)</button>' +
           '<button class="btn btn-sec btn-sm" data-ex="' + o[0] + '|txt">Texto (TXT)</button></div></div>').join("") +
       '</div>' +
-      '<div class="sec"><div class="sec-hd"><h2>Respaldo</h2></div>' +
-        '<p class="muted">Guarda una copia completa de los datos del grupo. Si no has conectado la nube, este archivo es tu única red de seguridad.</p>' +
+      '<div class="sec"><div class="sec-hd"><h2>Respaldo e intercambio</h2></div>' +
+        '<p class="muted">Mientras no conectes la nube, este archivo es tu red de seguridad y también el puente ' +
+        'entre el gerente y el contador: uno lo descarga, lo envía, y el otro lo <b>combina</b> con lo suyo.</p>' +
         '<div class="btn-row"><button class="btn btn-sec btn-sm" id="bkD">' + ic("bajar",15) + 'Descargar respaldo</button>' +
-        '<button class="btn btn-sec btn-sm" id="bkR">Restaurar respaldo</button></div>' +
-        '<input type="file" id="bkF" accept="application/json,.json" style="display:none"></div>' +
+        '<button class="btn btn-sec btn-sm" id="bkM">' + ic("check",15) + 'Combinar un respaldo</button></div>' +
+        '<div class="btn-row" style="margin-top:8px">' +
+        '<button class="btn btn-ghost btn-sm" id="bkR">Reemplazar todo con un respaldo</button></div>' +
+        '<input type="file" id="bkF" accept="application/json,.json" style="display:none">' +
+        '<input type="file" id="bkFM" accept="application/json,.json" style="display:none"></div>' +
       '<div class="sec"><div class="sec-hd"><h2>Sincronización</h2></div>' +
         '<button class="btn btn-sec btn-full" id="nbB">' + ic("nube",16) + 'Configurar la nube</button></div>' +
       '<div class="sec"><div class="sec-hd"><h2>Parámetros</h2></div>' +
@@ -2333,20 +2407,44 @@ function shAjustes(){
   });
   $sheet.querySelectorAll("[data-ex]").forEach(b => b.addEventListener("click", () => exportar(b.dataset.ex)));
   $("bkD").addEventListener("click", () => bajar("respaldo_grupo_" + hoy().replace(/-/g,"") + ".json", JSON.stringify(S,null,2), "application/json"));
+  $("bkM").addEventListener("click", () => $("bkFM").click());
+  $("bkFM").addEventListener("change", () => {
+    const f = $("bkFM").files[0]; if(!f) return;
+    leerRespaldo(f, d => {
+      const {estado, r} = fusionar(S, d);
+      const sy = S.sync, ui = S.ui;
+      S = estado; S.sync = sy; S.ui = ui;
+      if(!S.seq) S.seq = {};
+      asegurarEmpresas(S);
+      guardar(); pintar(); cerrar();
+      hoja({
+        titulo:"Respaldo combinado",
+        cuerpo:'<div class="done"><div class="mk">' + ic("check",24) + '</div>' +
+          '<h4>Se combinó sin perder nada</h4>' +
+          '<p>Tus vistos buenos y tus registros se conservaron. Los pagos de ambos lados se sumaron.</p></div>' +
+          '<div class="card card-p" style="margin-top:16px"><div class="dl">' +
+            '<div class="r"><span>Movimientos nuevos</span><b>' + r.nuevos + '</b></div>' +
+            '<div class="r"><span>Movimientos actualizados</span><b>' + r.actualizados + '</b></div>' +
+            (r.empresas ? '<div class="r"><span>Empresas agregadas</span><b>' + r.empresas + '</b></div>' : '') +
+            (r.catalogos ? '<div class="r"><span>Contactos agregados</span><b>' + r.catalogos + '</b></div>' : '') +
+          '</div></div>',
+        pie:'<button class="btn btn-pri btn-lg btn-full" data-x>Entendido</button>'
+      });
+    });
+  });
+
   $("bkR").addEventListener("click", () => $("bkF").click());
   $("bkF").addEventListener("change", () => {
     const f = $("bkF").files[0]; if(!f) return;
-    const rd = new FileReader();
-    rd.onload = () => {
-      try{
-        const d = JSON.parse(rd.result);
-        if(!d.liquidaciones || !d.ventas) throw 0;
+    leerRespaldo(f, d => confirmar("¿Reemplazar todo?",
+      "Se descarta lo que tienes en este equipo, incluidos los vistos buenos que hayas puesto. Casi siempre conviene Combinar en vez de esto.",
+      () => {
         const sy = S.sync;
         S = d; S.sync = sy; if(!S.ui) S.ui = vacio().ui;
+        if(!S.seq) S.seq = {};
+        asegurarEmpresas(S);
         guardar(); pintar(); cerrar(); aviso("Respaldo restaurado.");
-      }catch(e){ aviso("Ese archivo no es un respaldo válido."); }
-    };
-    rd.readAsText(f);
+      }));
   });
   $("nbB").addEventListener("click", shNube);
   $("cgS").addEventListener("click", () => {
@@ -2436,7 +2534,7 @@ const ACC = {
    una version vieja despues de publicar. Esto lo detecta y lo avisa,
    sin recargar solo: recargar a media liquidacion perderia lo escrito.
    ------------------------------------------------------------ */
-const VERSION = "2026.11.13-2";
+const VERSION = "2026.11.13-3";
 async function verVersion(){
   try{
     const r = await fetch("version.json?t=" + Date.now(), {cache:"no-store"});

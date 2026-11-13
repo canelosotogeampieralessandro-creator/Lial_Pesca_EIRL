@@ -46,8 +46,20 @@ imprime o se guarda en PDF.
 
 Siempre primero en el equipo donde se escriben. Registrar nunca depende de la señal.
 
-Sin configurar la nube, los datos viven solo en ese navegador: usa **Ajustes → Respaldo** con
-regularidad, porque es la única red de seguridad.
+Sin configurar la nube, los datos viven solo en ese navegador: usa **Ajustes → Descargar
+respaldo** con regularidad, porque es la única red de seguridad.
+
+### Trabajar entre dos equipos sin nube
+
+El respaldo también sirve de puente mientras la nube no esté conectada. El gerente descarga el
+archivo y lo envía; el contador usa **Combinar un respaldo**, no *Reemplazar*.
+
+Combinar fusiona registro por registro: suma los movimientos que faltan, une los pagos de ambos
+lados y conserva los vistos buenos del contador aunque el gerente no los tenga. Combinar dos
+veces el mismo archivo no duplica nada. *Reemplazar* se reserva para restaurar un respaldo tras
+perder un equipo, porque descarta lo que haya en el actual.
+
+Es un apaño, no un reemplazo de la nube: el intercambio es manual y nadie ve nada "al día".
 
 ### Conectar la nube (una sola vez)
 
