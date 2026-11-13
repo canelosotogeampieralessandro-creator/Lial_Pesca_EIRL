@@ -1,7 +1,8 @@
 {
-  "name": "Gestión de Cuentas — LIALPESCA",
+  "id": "/Lial_Pesca_EIRL/",
+  "name": "Gestión de Cuentas — Grupo",
   "short_name": "Cuentas",
-  "description": "Liquidaciones de compra enlazadas a facturas de venta, con control de pagos, cobros, factoring y fletes.",
+  "description": "Liquidaciones de compra enlazadas a facturas de venta, con control de pagos, cobros, factoring, fletes y cierre contable del grupo.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

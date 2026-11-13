@@ -2436,7 +2436,7 @@ const ACC = {
    una version vieja despues de publicar. Esto lo detecta y lo avisa,
    sin recargar solo: recargar a media liquidacion perderia lo escrito.
    ------------------------------------------------------------ */
-const VERSION = "2026.11.13-1";
+const VERSION = "2026.11.13-2";
 async function verVersion(){
   try{
     const r = await fetch("version.json?t=" + Date.now(), {cache:"no-store"});
